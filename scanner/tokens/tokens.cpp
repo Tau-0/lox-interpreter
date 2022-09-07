@@ -27,11 +27,11 @@ NonLiteral::NonLiteral(lox::tokens::Type type, std::string&& lexeme, uint32_t li
 }
 
 std::string Token::ToString() const {
-    auto visitor = [](const auto& arg) -> std::string {
+    static constexpr auto kVisitor = [](const auto& arg) -> std::string {
         return arg.ToString();
     };
 
-    return std::visit(visitor, token_);
+    return std::visit(kVisitor, token_);
 }
 
 }  // namespace lox::tokens
