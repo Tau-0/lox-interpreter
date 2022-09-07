@@ -6,74 +6,74 @@
 
 namespace lox {
 
-const std::unordered_map<std::string, Token::Type> Scanner::kKeywords = {
-    {"and", Token::Type::kAnd},        //
-    {"class", Token::Type::kClass},    //
-    {"else", Token::Type::kElse},      //
-    {"false", Token::Type::kFalse},    //
-    {"for", Token::Type::kFor},        //
-    {"fun", Token::Type::kFun},        //
-    {"if", Token::Type::kIf},          //
-    {"nil", Token::Type::kNil},        //
-    {"or", Token::Type::kOr},          //
-    {"print", Token::Type::kPrint},    //
-    {"return", Token::Type::kReturn},  //
-    {"super", Token::Type::kSuper},    //
-    {"this", Token::Type::kThis},      //
-    {"true", Token::Type::kTrue},      //
-    {"var", Token::Type::kVar},        //
-    {"while", Token::Type::kWhile},    //
+const std::unordered_map<std::string, tokens::Type> Scanner::kKeywords = {
+    {"and", tokens::Type::kAnd},        //
+    {"class", tokens::Type::kClass},    //
+    {"else", tokens::Type::kElse},      //
+    {"false", tokens::Type::kFalse},    //
+    {"for", tokens::Type::kFor},        //
+    {"fun", tokens::Type::kFun},        //
+    {"if", tokens::Type::kIf},          //
+    {"nil", tokens::Type::kNil},        //
+    {"or", tokens::Type::kOr},          //
+    {"print", tokens::Type::kPrint},    //
+    {"return", tokens::Type::kReturn},  //
+    {"super", tokens::Type::kSuper},    //
+    {"this", tokens::Type::kThis},      //
+    {"true", tokens::Type::kTrue},      //
+    {"var", tokens::Type::kVar},        //
+    {"while", tokens::Type::kWhile},    //
 };
 
 Scanner::Scanner(std::string&& source, Lox& lox) : source_(std::move(source)), lox_(lox) {
 }
 
-const std::vector<Token>& Scanner::ScanTokens() {
+const std::vector<tokens::Token>& Scanner::ScanTokens() {
     while (!IsAtEnd()) {
         start_ = current_;
         ScanToken();
     }
-    tokens_.emplace_back(Token::Type::kEof, "", "", line_);
+    tokens_.emplace_back(tokens::NonLiteral(tokens::Type::kEof, "", line_));
     return tokens_;
 }
 
 void Scanner::ScanToken() {
     char c = Advance();
     if (c == '(') {
-        AddToken(Token::Type::kLeftParen);
+        AddNonLiteralToken(tokens::Type::kLeftParen);
     } else if (c == ')') {
-        AddToken(Token::Type::kRightParen);
+        AddNonLiteralToken(tokens::Type::kRightParen);
     } else if (c == '{') {
-        AddToken(Token::Type::kLeftBrace);
+        AddNonLiteralToken(tokens::Type::kLeftBrace);
     } else if (c == '}') {
-        AddToken(Token::Type::kRightBrace);
+        AddNonLiteralToken(tokens::Type::kRightBrace);
     } else if (c == ',') {
-        AddToken(Token::Type::kComma);
+        AddNonLiteralToken(tokens::Type::kComma);
     } else if (c == '.') {
-        AddToken(Token::Type::kDot);
+        AddNonLiteralToken(tokens::Type::kDot);
     } else if (c == '-') {
-        AddToken(Token::Type::kMinus);
+        AddNonLiteralToken(tokens::Type::kMinus);
     } else if (c == '+') {
-        AddToken(Token::Type::kPlus);
+        AddNonLiteralToken(tokens::Type::kPlus);
     } else if (c == ';') {
-        AddToken(Token::Type::kSemicolon);
+        AddNonLiteralToken(tokens::Type::kSemicolon);
     } else if (c == '*') {
-        AddToken(Token::Type::kStar);
+        AddNonLiteralToken(tokens::Type::kStar);
     } else if (c == '!') {
-        AddToken(Match('=') ? Token::Type::kBangEqual : Token::Type::kBang);
+        AddNonLiteralToken(Match('=') ? tokens::Type::kBangEqual : tokens::Type::kBang);
     } else if (c == '=') {
-        AddToken(Match('=') ? Token::Type::kEqualEqual : Token::Type::kEqual);
+        AddNonLiteralToken(Match('=') ? tokens::Type::kEqualEqual : tokens::Type::kEqual);
     } else if (c == '<') {
-        AddToken(Match('=') ? Token::Type::kLessEqual : Token::Type::kLess);
+        AddNonLiteralToken(Match('=') ? tokens::Type::kLessEqual : tokens::Type::kLess);
     } else if (c == '>') {
-        AddToken(Match('=') ? Token::Type::kGreaterEqual : Token::Type::kGreater);
+        AddNonLiteralToken(Match('=') ? tokens::Type::kGreaterEqual : tokens::Type::kGreater);
     } else if (c == '/') {
         if (Match('/')) {
             while (Peek() != '\n' && !IsAtEnd()) {
                 Advance();
             }
         } else {
-            AddToken(Token::Type::kSlash);
+            AddNonLiteralToken(tokens::Type::kSlash);
         }
     } else if (c == ' ' || c == '\r' || c == '\t') {
         // Skip
@@ -99,13 +99,18 @@ char Scanner::Advance() {
     return source_[current_++];
 }
 
-void Scanner::AddToken(Token::Type type) {
-    AddToken(type, "");
+void Scanner::AddNonLiteralToken(tokens::Type type) {
+    std::string lexeme = source_.substr(start_, current_ - start_);
+    tokens_.emplace_back(tokens::NonLiteral(type, std::move(lexeme), line_));
 }
 
-void Scanner::AddToken(Token::Type type, std::string&& literal) {
-    std::string lexeme = source_.substr(start_, current_);
-    tokens_.emplace_back(type, std::move(lexeme), std::move(literal), line_);
+void Scanner::AddLiteralToken(tokens::Type type, std::string&& literal) {
+    std::string lexeme = source_.substr(start_, current_ - start_);
+    if (type == tokens::Type::kNumber) {
+        tokens_.emplace_back(tokens::literals::Number(type, std::move(lexeme), std::stod(literal), line_));
+    } else {
+        tokens_.emplace_back(tokens::literals::String(type, std::move(lexeme), std::move(literal), line_));
+    }
 }
 
 bool Scanner::Match(char expected) {
@@ -148,8 +153,8 @@ void Scanner::ScanString() {
     Advance();
 
     // Trim quotes
-    std::string value = source_.substr(start_ + 1, current_ - 1);
-    AddToken(Token::Type::kString, std::move(value));
+    std::string literal = source_.substr(start_ + 1, current_ - start_ - 2);
+    AddLiteralToken(tokens::Type::kString, std::move(literal));
 }
 
 void Scanner::ScanNumber() {
@@ -164,7 +169,7 @@ void Scanner::ScanNumber() {
             Advance();
         }
     }
-    AddToken(Token::Type::kNumber, source_.substr(start_, current_));
+    AddLiteralToken(tokens::Type::kNumber, source_.substr(start_, current_ - start_));
 }
 
 void Scanner::ScanIdentifier() {
@@ -172,11 +177,11 @@ void Scanner::ScanIdentifier() {
         Advance();
     }
 
-    std::string text = source_.substr(start_, current_);
-    if (!kKeywords.contains(text)) {
-        AddToken(Token::Type::kIdentifier);
+    std::string text = source_.substr(start_, current_ - start_);
+    if (kKeywords.contains(text)) {
+        AddNonLiteralToken(kKeywords.at(text));
     } else {
-        AddToken(kKeywords.at(text));
+        AddNonLiteralToken(tokens::Type::kIdentifier);
     }
 }
 

@@ -4,7 +4,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "token.hpp"
+#include "tokens/tokens.hpp"
 
 namespace lox {
 
@@ -13,14 +13,14 @@ class Lox;
 class Scanner {
  public:
     Scanner(std::string&& source, Lox& lox);
-    const std::vector<Token>& ScanTokens();
+    const std::vector<tokens::Token>& ScanTokens();
 
  private:
     void ScanToken();
     bool IsAtEnd() const;
     char Advance();
-    void AddToken(Token::Type type);
-    void AddToken(Token::Type type, std::string&& literal);
+    void AddNonLiteralToken(tokens::Type type);
+    void AddLiteralToken(tokens::Type type, std::string&& literal);
     bool Match(char expected);
     char Peek() const;
     void ScanString();
@@ -30,11 +30,11 @@ class Scanner {
     void ScanIdentifier();
 
  private:
-    static const std::unordered_map<std::string, Token::Type> kKeywords;
+    static const std::unordered_map<std::string, tokens::Type> kKeywords;
 
  private:
     std::string source_;
-    std::vector<Token> tokens_;
+    std::vector<tokens::Token> tokens_;
     uint32_t start_ = 0;
     uint32_t current_ = 0;
     uint32_t line_ = 1;

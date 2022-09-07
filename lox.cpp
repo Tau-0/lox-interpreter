@@ -34,7 +34,7 @@ void Lox::Error(int line, const std::string& message) {
 
 void Lox::Run(std::string&& source) {
     Scanner scanner(std::move(source), *this);
-    const std::vector<Token>& tokens = scanner.ScanTokens();
+    const std::vector<tokens::Token>& tokens = scanner.ScanTokens();
     for (auto token : tokens) {
         std::cout << token.ToString() << "\n";
     }

@@ -7,6 +7,7 @@ add_executable(
         lox_interpreter
         main.cpp
         lox.cpp
-        scanner/token.cpp
         scanner/scanner.cpp
+        scanner/tokens/tokens.cpp
+        scanner/tokens/type.cpp
 )
