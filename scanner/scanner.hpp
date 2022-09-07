@@ -27,7 +27,7 @@ class Scanner {
     void ScanNumber();
     char PeekNext() const;
     char PeekImpl(size_t shift) const;
-    void ScanIdentifier();
+    void ScanIdentifierOrKeyword();
 
  private:
     static const std::unordered_map<std::string, tokens::Type> kKeywords;

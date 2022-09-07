@@ -85,7 +85,7 @@ void Scanner::ScanToken() {
     } else if (std::isdigit(c) != 0) {
         ScanNumber();
     } else if (std::isalpha(c) != 0 || c == '_') {
-        ScanIdentifier();
+        ScanIdentifierOrKeyword();
     } else {
         lox_.Error(line_, "Unexpected character.");
     }
@@ -172,7 +172,7 @@ void Scanner::ScanNumber() {
     AddLiteralToken(tokens::Type::kNumber, source_.substr(start_, current_ - start_));
 }
 
-void Scanner::ScanIdentifier() {
+void Scanner::ScanIdentifierOrKeyword() {
     while (std::isalnum(Peek()) != 0 || Peek() == '_') {
         Advance();
     }
