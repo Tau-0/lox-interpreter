@@ -17,6 +17,10 @@ class Base {
         return buffer + ", Line: " + std::to_string(line_);
     }
 
+    const std::string& Lexeme() const {
+        return lexeme_;
+    }
+
  protected:
     Base(Type type, std::string&& lexeme, uint32_t line) : lexeme_(std::move(lexeme)), type_(type), line_(line) {
     }

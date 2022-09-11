@@ -10,4 +10,5 @@ add_executable(
         scanner/scanner.cpp
         scanner/tokens/tokens.cpp
         scanner/tokens/type.cpp
-)
+        parser/expressions/expressions.cpp
+        parser/ast_printer.cpp parser/ast_printer.hpp)

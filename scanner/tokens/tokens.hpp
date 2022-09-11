@@ -46,6 +46,7 @@ class Token {
     }
 
     std::string ToString() const;
+    const std::string& Lexeme() const;
 
  private:
     std::variant<NonLiteral, literals::Number, literals::String> token_;

@@ -34,4 +34,12 @@ std::string Token::ToString() const {
     return std::visit(kVisitor, token_);
 }
 
+const std::string& Token::Lexeme() const {
+    static constexpr auto kVisitor = [](const auto& arg) -> const std::string& {
+        return arg.Lexeme();
+    };
+
+    return std::visit(kVisitor, token_);
+}
+
 }  // namespace lox::tokens

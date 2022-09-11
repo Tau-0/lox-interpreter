@@ -30,7 +30,7 @@ const std::unordered_map<Type, std::string> kTypeStrings = {
     {Type::kAnd, "Keyword (and)"},        //
     {Type::kClass, "Keyword (class)"},    //
     {Type::kElse, "Keyword (else)"},      //
-    {Type::kFalse, "Keyword (false"},     //
+    {Type::kFalse, "Keyword (false)"},    //
     {Type::kFun, "Keyword (fun)"},        //
     {Type::kFor, "Keyword (for)"},        //
     {Type::kIf, "Keyword (if)"},          //
