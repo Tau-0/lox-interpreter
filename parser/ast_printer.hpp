@@ -35,17 +35,14 @@ class AstPrinter : public expressions::IExprVisitor<std::string> {
     }
 
     // temporary
-//    void Test() const {
-//        expressions::Binary expr(std::make_shared<expressions::Binary>());
-//    }
+    //    void Test() const {
+    //        expressions::Binary expr(std::make_shared<expressions::Binary>());
+    //    }
 
  private:
     template <typename T>
     std::string ParenthesizeImpl(const T& t) const {
-        auto visitor = [this](const auto& arg) -> std::string {
-            return arg.Accept(*this);
-        };
-        return std::visit(std::move(visitor), t);
+        return t.Accept(*this);
     }
 
     template <typename T, typename... Args>

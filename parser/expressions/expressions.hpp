@@ -15,8 +15,8 @@ class Nil;
 class Unary;
 class Binary;
 class Grouping;
+class Expr;
 
-using Expr = std::variant<String, Number, Boolean, Nil, Unary, Binary, Grouping>;
 using ExprPtr = std::shared_ptr<Expr>;
 
 template <typename T>
@@ -128,6 +128,24 @@ class Grouping : public ExprBase<Grouping> {
 
  private:
     ExprPtr expr_;
+};
+
+class Expr {
+ public:
+    template <typename T>
+    explicit Expr(T&& expr) : expr_(std::forward<T>(expr)) {
+    }
+
+    template <typename T>
+    T Accept(const IExprVisitor<T>& visitor) const {
+        auto v = [&visitor](const auto& arg) -> T {
+            return arg.Accept(visitor);
+        };
+        return std::visit(std::move(v), expr_);
+    }
+
+ private:
+    std::variant<String, Number, Boolean, Nil, Unary, Binary, Grouping> expr_;
 };
 
 }  // namespace lox::expressions
