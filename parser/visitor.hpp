@@ -1,6 +1,6 @@
 //#pragma once
 //
-//namespace lox::expressions {
+//namespace lox::ast {
 //
 //class String;
 //class Number;
@@ -24,4 +24,4 @@
 //    virtual T Visit(Grouping&) = 0;
 //};
 //
-//}  // namespace lox::expressions
+//}  // namespace lox::ast

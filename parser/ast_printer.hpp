@@ -1,6 +1,6 @@
 #pragma once
 
-#include "expressions/expressions.hpp"
+#include <data_structures/ast/expressions.hpp>
 
 namespace lox {
 
@@ -36,7 +36,7 @@ class AstPrinter : public expressions::IExprVisitor<std::string> {
 
     // temporary
     //    void Test() const {
-    //        expressions::Binary expr(std::make_shared<expressions::Binary>());
+    //        ast::Binary expr(std::make_shared<ast::Binary>());
     //    }
 
  private:

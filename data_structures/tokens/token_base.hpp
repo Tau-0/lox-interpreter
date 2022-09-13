@@ -1,8 +1,7 @@
 #pragma once
 
+#include <data_structures/tokens/type.hpp>
 #include <string>
-
-#include "type.hpp"
 
 namespace lox::tokens {
 

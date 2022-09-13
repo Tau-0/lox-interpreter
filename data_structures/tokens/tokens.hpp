@@ -1,10 +1,9 @@
 #pragma once
 
+#include <data_structures/tokens/literal_base.hpp>
+#include <data_structures/tokens/token_base.hpp>
 #include <string>
 #include <variant>
-
-#include "literal_base.hpp"
-#include "token_base.hpp"
 
 namespace lox::tokens {
 

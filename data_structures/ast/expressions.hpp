@@ -1,10 +1,9 @@
 #pragma once
 
+#include <data_structures/tokens/tokens.hpp>
 #include <memory>
 #include <string>
 #include <variant>
-
-#include "../../scanner/tokens/tokens.hpp"
 
 namespace lox::expressions {
 
@@ -51,9 +50,7 @@ class ExprBase {
 
 class String : public ExprBase<String> {
  public:
-    const std::string& Value() const {
-        return value_;
-    }
+    const std::string& Value() const;
 
  private:
     std::string value_;
@@ -61,9 +58,7 @@ class String : public ExprBase<String> {
 
 class Number : public ExprBase<Number> {
  public:
-    double Value() const {
-        return value_;
-    }
+    double Value() const;
 
  private:
     double value_ = 0.0;
@@ -71,9 +66,7 @@ class Number : public ExprBase<Number> {
 
 class Boolean : public ExprBase<Boolean> {
  public:
-    bool Value() const {
-        return value_;
-    }
+    bool Value() const;
 
  private:
     bool value_ = false;
@@ -87,13 +80,8 @@ class Nil : public ExprBase<Nil> {
 
 class Unary : public ExprBase<Unary> {
  public:
-    const tokens::Token& Operation() const {
-        return op_;
-    }
-
-    const Expr& Expression() const {
-        return *expr_.get();
-    }
+    const tokens::Token& Operation() const;
+    const Expr& Expression() const;
 
  private:
     ExprPtr expr_;
@@ -102,17 +90,9 @@ class Unary : public ExprBase<Unary> {
 
 class Binary : public ExprBase<Binary> {
  public:
-    const tokens::Token& Operation() const {
-        return op_;
-    }
-
-    const Expr& LeftExpression() const {
-        return *left_.get();
-    }
-
-    const Expr& RightExpression() const {
-        return *right_.get();
-    }
+    const tokens::Token& Operation() const;
+    const Expr& LeftExpression() const;
+    const Expr& RightExpression() const;
 
  private:
     ExprPtr left_;
@@ -122,9 +102,7 @@ class Binary : public ExprBase<Binary> {
 
 class Grouping : public ExprBase<Grouping> {
  public:
-    const Expr& Expression() const {
-        return *expr_.get();
-    }
+    const Expr& Expression() const;
 
  private:
     ExprPtr expr_;

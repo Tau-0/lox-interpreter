@@ -1,10 +1,9 @@
 #pragma once
 
+#include <data_structures/tokens/tokens.hpp>
 #include <string>
 #include <unordered_map>
 #include <vector>
-
-#include "tokens/tokens.hpp"
 
 namespace lox {
 
