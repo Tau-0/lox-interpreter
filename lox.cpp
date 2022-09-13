@@ -4,8 +4,7 @@
 
 #include <fstream>
 #include <iostream>
-
-#include "scanner/scanner.hpp"
+#include <scanner/scanner.hpp>
 
 namespace lox {
 

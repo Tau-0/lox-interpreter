@@ -51,4 +51,9 @@ class Token {
     std::variant<NonLiteral, literals::Number, literals::String> token_;
 };
 
+template <typename T, typename... Args>
+Token MakeToken(Args&&... args) {
+    return Token(T(std::forward<Args>(args)...));
+}
+
 }  // namespace lox::tokens

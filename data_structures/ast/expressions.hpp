@@ -1,5 +1,6 @@
 #pragma once
 
+#include <data_structures/ast/expr_visitor.hpp>
 #include <data_structures/tokens/tokens.hpp>
 #include <memory>
 #include <string>
@@ -7,28 +8,7 @@
 
 namespace lox::expressions {
 
-class String;
-class Number;
-class Boolean;
-class Nil;
-class Unary;
-class Binary;
-class Grouping;
-class Expr;
-
 using ExprPtr = std::shared_ptr<Expr>;
-
-template <typename T>
-struct IExprVisitor {
-    virtual T Visit(const String&) const = 0;
-    virtual T Visit(const Number&) const = 0;
-    virtual T Visit(const Boolean&) const = 0;
-    virtual T Visit(const Nil&) const = 0;
-    virtual T Visit(const Unary&) const = 0;
-    virtual T Visit(const Binary&) const = 0;
-    virtual T Visit(const Grouping&) const = 0;
-    virtual ~IExprVisitor() = default;
-};
 
 template <typename C>
 class ExprBase {
@@ -50,6 +30,7 @@ class ExprBase {
 
 class String : public ExprBase<String> {
  public:
+    explicit String(std::string&& value);
     const std::string& Value() const;
 
  private:
@@ -58,6 +39,7 @@ class String : public ExprBase<String> {
 
 class Number : public ExprBase<Number> {
  public:
+    explicit Number(double value);
     double Value() const;
 
  private:
@@ -66,6 +48,7 @@ class Number : public ExprBase<Number> {
 
 class Boolean : public ExprBase<Boolean> {
  public:
+    explicit Boolean(bool value);
     bool Value() const;
 
  private:
@@ -73,13 +56,13 @@ class Boolean : public ExprBase<Boolean> {
 };
 
 class Nil : public ExprBase<Nil> {
- public:
  private:
     std::monostate value_;
 };
 
 class Unary : public ExprBase<Unary> {
  public:
+    Unary(ExprPtr expr, tokens::Token&& op);
     const tokens::Token& Operation() const;
     const Expr& Expression() const;
 
@@ -90,6 +73,7 @@ class Unary : public ExprBase<Unary> {
 
 class Binary : public ExprBase<Binary> {
  public:
+    Binary(ExprPtr left, ExprPtr right, tokens::Token&& op);
     const tokens::Token& Operation() const;
     const Expr& LeftExpression() const;
     const Expr& RightExpression() const;
@@ -102,6 +86,7 @@ class Binary : public ExprBase<Binary> {
 
 class Grouping : public ExprBase<Grouping> {
  public:
+    explicit Grouping(ExprPtr expr);
     const Expr& Expression() const;
 
  private:
@@ -125,5 +110,10 @@ class Expr {
  private:
     std::variant<String, Number, Boolean, Nil, Unary, Binary, Grouping> expr_;
 };
+
+template <typename T, typename... Args>
+ExprPtr MakeExpr(Args&&... args) {
+    return std::make_shared<Expr>(T(std::forward<Args>(args)...));
+}
 
 }  // namespace lox::expressions
