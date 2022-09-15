@@ -1,7 +1,7 @@
 #include "scanner.hpp"
 
 #include <cassert>
-#include <lox.hpp>
+#include <lox/lox.hpp>
 
 namespace lox {
 

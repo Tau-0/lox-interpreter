@@ -1,7 +1,7 @@
 #include <sysexits.h>
 
 #include <iostream>
-#include <lox.hpp>
+#include <lox/lox.hpp>
 
 int main(int argc, char** argv) {
     if (argc > 2) {
