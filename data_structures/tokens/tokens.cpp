@@ -34,9 +34,17 @@ std::string Token::ToString() const {
     return std::visit(kVisitor, token_);
 }
 
-const std::string& Token::Lexeme() const {
+const std::string& Token::GetLexeme() const {
     static constexpr auto kVisitor = [](const auto& arg) -> const std::string& {
-        return arg.Lexeme();
+        return arg.GetLexeme();
+    };
+
+    return std::visit(kVisitor, token_);
+}
+
+Type Token::GetType() const {
+    static constexpr auto kVisitor = [](const auto& arg) -> Type {
+        return arg.GetType();
     };
 
     return std::visit(kVisitor, token_);

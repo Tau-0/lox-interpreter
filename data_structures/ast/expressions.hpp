@@ -31,7 +31,7 @@ class ExprBase {
 class String : public ExprBase<String> {
  public:
     explicit String(std::string&& value);
-    const std::string& Value() const;
+    const std::string& GetValue() const;
 
  private:
     std::string value_;
@@ -40,7 +40,7 @@ class String : public ExprBase<String> {
 class Number : public ExprBase<Number> {
  public:
     explicit Number(double value);
-    double Value() const;
+    double GetValue() const;
 
  private:
     double value_ = 0.0;
@@ -49,7 +49,7 @@ class Number : public ExprBase<Number> {
 class Boolean : public ExprBase<Boolean> {
  public:
     explicit Boolean(bool value);
-    bool Value() const;
+    bool GetValue() const;
 
  private:
     bool value_ = false;
@@ -63,8 +63,8 @@ class Nil : public ExprBase<Nil> {
 class Unary : public ExprBase<Unary> {
  public:
     Unary(ExprPtr expr, tokens::Token&& op);
-    const tokens::Token& Operation() const;
-    const Expr& Expression() const;
+    const tokens::Token& GetOperation() const;
+    const Expr& GetExpression() const;
 
  private:
     ExprPtr expr_;
@@ -74,9 +74,9 @@ class Unary : public ExprBase<Unary> {
 class Binary : public ExprBase<Binary> {
  public:
     Binary(ExprPtr left, ExprPtr right, tokens::Token&& op);
-    const tokens::Token& Operation() const;
-    const Expr& LeftExpression() const;
-    const Expr& RightExpression() const;
+    const tokens::Token& GetOperation() const;
+    const Expr& GetLeftExpression() const;
+    const Expr& GetRightExpression() const;
 
  private:
     ExprPtr left_;
@@ -87,7 +87,7 @@ class Binary : public ExprBase<Binary> {
 class Grouping : public ExprBase<Grouping> {
  public:
     explicit Grouping(ExprPtr expr);
-    const Expr& Expression() const;
+    const Expr& GetExpression() const;
 
  private:
     ExprPtr expr_;

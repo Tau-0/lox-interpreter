@@ -11,12 +11,12 @@ class LiteralBase : public Base<LiteralBase<C, T>> {
     using Base = Base<LiteralBase<C, T>>;
 
  public:
-    const T& Literal() const {
+    const T& GetLiteral() const {
         return literal_;
     }
 
     std::string ToString() const {
-        return Base::ToString() + ", Literal: " + AsHeir()->ToStringImpl();
+        return Base::ToString() + ", GetLiteral: " + AsHeir()->ToStringImpl();
     }
 
  protected:

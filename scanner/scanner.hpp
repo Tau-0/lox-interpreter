@@ -12,7 +12,7 @@ class Lox;
 class Scanner {
  public:
     Scanner(std::string&& source, Lox& lox);
-    const std::vector<tokens::Token>& ScanTokens();
+    std::vector<tokens::Token> ScanTokens();
 
  private:
     void ScanToken();

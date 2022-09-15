@@ -27,13 +27,13 @@ const std::unordered_map<std::string, tokens::Type> Scanner::kKeywords = {
 Scanner::Scanner(std::string&& source, Lox& lox) : source_(std::move(source)), lox_(lox) {
 }
 
-const std::vector<tokens::Token>& Scanner::ScanTokens() {
+std::vector<tokens::Token> Scanner::ScanTokens() {
     while (!IsAtEnd()) {
         start_ = current_;
         ScanToken();
     }
     tokens_.emplace_back(tokens::NonLiteral(tokens::Type::kEof, "", line_));
-    return tokens_;
+    return std::move(tokens_);
 }
 
 void Scanner::ScanToken() {

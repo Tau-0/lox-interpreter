@@ -2,8 +2,10 @@
 
 #include <sysexits.h>
 
+#include <data_structures/ast/ast_printer.hpp>
 #include <fstream>
 #include <iostream>
+#include <parser/parser.hpp>
 #include <scanner/scanner.hpp>
 
 namespace lox {
@@ -33,10 +35,9 @@ void Lox::Error(int line, const std::string& message) {
 
 void Lox::Run(std::string&& source) {
     Scanner scanner(std::move(source), *this);
-    const std::vector<tokens::Token>& tokens = scanner.ScanTokens();
-    for (auto token : tokens) {
-        std::cout << token.ToString() << "\n";
-    }
+    Parser parser(scanner.ScanTokens());
+    auto expr = parser.Parse();
+    std::cout << AstPrinter().Print(*expr) << "\n";
 }
 
 void Lox::Report(int line, const std::string& where, const std::string& message) {

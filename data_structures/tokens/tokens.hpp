@@ -44,8 +44,14 @@ class Token {
     explicit Token(T&& token) : token_(std::forward<T>(token)) {
     }
 
+    template <typename T>
+    const T& As() const {
+        return get<T>(token_);
+    }
+
     std::string ToString() const;
-    const std::string& Lexeme() const;
+    const std::string& GetLexeme() const;
+    Type GetType() const;
 
  private:
     std::variant<NonLiteral, literals::Number, literals::String> token_;

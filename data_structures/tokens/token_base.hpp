@@ -9,15 +9,19 @@ template <typename C>
 class Base {
  public:
     std::string ToString() const {
-        std::string buffer = "Type: " + AsString(type_);
+        std::string buffer = "GetType: " + AsString(type_);
         if (!lexeme_.empty()) {
-            buffer += ", Lexeme: " + lexeme_;
+            buffer += ", GetLexeme: " + lexeme_;
         }
         return buffer + ", Line: " + std::to_string(line_);
     }
 
-    const std::string& Lexeme() const {
+    const std::string& GetLexeme() const {
         return lexeme_;
+    }
+
+    Type GetType() const {
+        return type_;
     }
 
  protected:

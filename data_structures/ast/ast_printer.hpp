@@ -16,9 +16,6 @@ class AstPrinter : public expressions::IExprVisitor<std::string> {
     std::string Visit(const expressions::Binary& expr) const override;
     std::string Visit(const expressions::Grouping& expr) const override;
 
-    // temporary
-    void Test() const;
-
  private:
     template <typename T>
     std::string ParenthesizeImpl(const T& t) const {
