@@ -66,10 +66,9 @@ ExprPtr Parser::Primary() {
     } else if (Match(Type::kNil)) {
         return MakeExpr<expressions::Nil>();
     } else if (Match(Type::kNumber)) {
-        return MakeExpr<expressions::Number>(Previous().As<tokens::literals::Number>().GetLiteral());
+        return MakeExpr<expressions::Number>(Previous().As<tokens::Number>().literal_);
     } else if (Match(Type::kString)) {
-        auto literal = Previous().As<tokens::literals::String>().GetLiteral();
-        return MakeExpr<expressions::String>(std::move(literal));
+        return MakeExpr<expressions::String>(Previous().As<tokens::String>().literal_);
     } else if (Match(Type::kLeftParen)) {
         auto expr = Expression();
         Consume(Type::kRightParen, "Expected ')' after expression.");

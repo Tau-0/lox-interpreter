@@ -1,40 +1,50 @@
 #pragma once
 
-#include <data_structures/tokens/literal_base.hpp>
-#include <data_structures/tokens/token_base.hpp>
+#include <data_structures/tokens/type.hpp>
 #include <string>
 #include <variant>
 
 namespace lox::tokens {
 
-namespace literals {
+struct Base {
+ public:
+    std::string ToString() const;
 
-class String : public LiteralBase<String, std::string> {
- private:
-    friend LiteralBase<String, std::string>;
+ protected:
+    Base(Type type, std::string&& lexeme, uint32_t line);
 
  public:
+    std::string lexeme_;
+    Type type_;
+    uint32_t line_;
+};
+
+template <typename T>
+struct LiteralBase : public Base {
+ protected:
+    LiteralBase(Type type, std::string&& lexeme, T&& literal, uint32_t line)
+        : Base(type, std::move(lexeme), line), literal_(std::move(literal)) {
+    }
+
+    std::string ToString() const {
+        return Base::ToString() + ", Literal: ";
+    }
+
+ public:
+    T literal_;
+};
+
+struct String : public LiteralBase<std::string> {
     String(Type type, std::string&& lexeme, std::string&& literal, uint32_t line);
-
- private:
-    std::string ToStringImpl() const;
+    std::string ToString() const;
 };
 
-class Number : public LiteralBase<Number, double> {
- private:
-    friend LiteralBase<Number, double>;
-
- public:
+struct Number : public LiteralBase<double> {
     Number(Type type, std::string&& lexeme, double literal, uint32_t line);
-
- private:
-    std::string ToStringImpl() const;
+    std::string ToString() const;
 };
 
-}  // namespace literals
-
-class NonLiteral : public Base<NonLiteral> {
- public:
+struct NonLiteral : public Base {
     NonLiteral(Type type, std::string&& lexeme, uint32_t line);
 };
 
@@ -54,7 +64,7 @@ class Token {
     Type GetType() const;
 
  private:
-    std::variant<NonLiteral, literals::Number, literals::String> token_;
+    std::variant<NonLiteral, Number, String> token_;
 };
 
 template <typename T, typename... Args>

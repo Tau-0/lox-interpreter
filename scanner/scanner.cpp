@@ -106,9 +106,9 @@ void Scanner::AddNonLiteralToken(tokens::Type type) {
 void Scanner::AddLiteralToken(tokens::Type type, std::string&& literal) {
     std::string lexeme = source_.substr(start_, current_ - start_);
     if (type == tokens::Type::kNumber) {
-        tokens_.emplace_back(tokens::literals::Number(type, std::move(lexeme), std::stod(literal), line_));
+        tokens_.emplace_back(tokens::Number(type, std::move(lexeme), std::stod(literal), line_));
     } else {
-        tokens_.emplace_back(tokens::literals::String(type, std::move(lexeme), std::move(literal), line_));
+        tokens_.emplace_back(tokens::String(type, std::move(lexeme), std::move(literal), line_));
     }
 }
 

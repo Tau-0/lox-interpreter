@@ -2,7 +2,7 @@
 
 namespace lox::expressions {
 
-String::String(std::string&& value) : value_(std::move(value)) {
+String::String(std::string value) : value_(std::move(value)) {
 }
 
 Number::Number(double value) : value_(value) {

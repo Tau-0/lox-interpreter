@@ -19,7 +19,7 @@ class Expr;
 using ExprPtr = std::shared_ptr<Expr>;
 
 struct String {
-    explicit String(std::string&& value);
+    explicit String(std::string value);
 
     std::string value_;
 };
