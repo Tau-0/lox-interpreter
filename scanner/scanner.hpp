@@ -1,6 +1,7 @@
 #pragma once
 
 #include <data_structures/tokens/tokens.hpp>
+#include <optional>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -18,8 +19,7 @@ class Scanner {
     void ScanToken();
     bool IsAtEnd() const;
     char Advance();
-    void AddNonLiteralToken(tokens::Type type);
-    void AddLiteralToken(tokens::Type type, std::string&& literal);
+    void AddToken(tokens::Type type, std::optional<std::string>&& literal = std::nullopt);
     bool Match(char expected);
     char Peek() const;
     void ScanString();
@@ -27,6 +27,11 @@ class Scanner {
     char PeekNext() const;
     char PeekImpl(size_t shift) const;
     void ScanIdentifierOrKeyword();
+    void SkipCommentaries();
+
+    static bool IsDigit(unsigned char c);
+    static bool IsAlpha(unsigned char c);
+    static bool IsAlphaNumeric(unsigned char c);
 
  private:
     static const std::unordered_map<std::string, tokens::Type> kKeywords;

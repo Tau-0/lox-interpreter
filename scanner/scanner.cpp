@@ -39,41 +39,37 @@ std::vector<tokens::Token> Scanner::ScanTokens() {
 void Scanner::ScanToken() {
     char c = Advance();
     if (c == '(') {
-        AddNonLiteralToken(tokens::Type::kLeftParen);
+        AddToken(tokens::Type::kLeftParen);
     } else if (c == ')') {
-        AddNonLiteralToken(tokens::Type::kRightParen);
+        AddToken(tokens::Type::kRightParen);
     } else if (c == '{') {
-        AddNonLiteralToken(tokens::Type::kLeftBrace);
+        AddToken(tokens::Type::kLeftBrace);
     } else if (c == '}') {
-        AddNonLiteralToken(tokens::Type::kRightBrace);
+        AddToken(tokens::Type::kRightBrace);
     } else if (c == ',') {
-        AddNonLiteralToken(tokens::Type::kComma);
+        AddToken(tokens::Type::kComma);
     } else if (c == '.') {
-        AddNonLiteralToken(tokens::Type::kDot);
+        AddToken(tokens::Type::kDot);
     } else if (c == '-') {
-        AddNonLiteralToken(tokens::Type::kMinus);
+        AddToken(tokens::Type::kMinus);
     } else if (c == '+') {
-        AddNonLiteralToken(tokens::Type::kPlus);
+        AddToken(tokens::Type::kPlus);
     } else if (c == ';') {
-        AddNonLiteralToken(tokens::Type::kSemicolon);
+        AddToken(tokens::Type::kSemicolon);
     } else if (c == '*') {
-        AddNonLiteralToken(tokens::Type::kStar);
+        AddToken(tokens::Type::kStar);
     } else if (c == '!') {
-        AddNonLiteralToken(Match('=') ? tokens::Type::kBangEqual : tokens::Type::kBang);
+        AddToken(Match('=') ? tokens::Type::kBangEqual : tokens::Type::kBang);
     } else if (c == '=') {
-        AddNonLiteralToken(Match('=') ? tokens::Type::kEqualEqual : tokens::Type::kEqual);
+        AddToken(Match('=') ? tokens::Type::kEqualEqual : tokens::Type::kEqual);
     } else if (c == '<') {
-        AddNonLiteralToken(Match('=') ? tokens::Type::kLessEqual : tokens::Type::kLess);
+        AddToken(Match('=') ? tokens::Type::kLessEqual : tokens::Type::kLess);
     } else if (c == '>') {
-        AddNonLiteralToken(Match('=') ? tokens::Type::kGreaterEqual : tokens::Type::kGreater);
+        AddToken(Match('=') ? tokens::Type::kGreaterEqual : tokens::Type::kGreater);
+    } else if (c == '/' && Match('/')) {
+        SkipCommentaries();
     } else if (c == '/') {
-        if (Match('/')) {
-            while (Peek() != '\n' && !IsAtEnd()) {
-                Advance();
-            }
-        } else {
-            AddNonLiteralToken(tokens::Type::kSlash);
-        }
+        AddToken(tokens::Type::kSlash);
     } else if (c == ' ' || c == '\r' || c == '\t') {
         // Skip
         return;
@@ -81,9 +77,9 @@ void Scanner::ScanToken() {
         ++line_;
     } else if (c == '"') {
         ScanString();
-    } else if (std::isdigit(c) != 0) {
+    } else if (IsDigit(c)) {
         ScanNumber();
-    } else if (std::isalpha(c) != 0 || c == '_') {
+    } else if (IsAlpha(c)) {
         ScanIdentifierOrKeyword();
     } else {
         lox_.Error(line_, "Unexpected character.");
@@ -98,17 +94,16 @@ char Scanner::Advance() {
     return source_[current_++];
 }
 
-void Scanner::AddNonLiteralToken(tokens::Type type) {
-    std::string lexeme = source_.substr(start_, current_ - start_);
-    tokens_.emplace_back(tokens::NonLiteral(type, std::move(lexeme), line_));
-}
-
-void Scanner::AddLiteralToken(tokens::Type type, std::string&& literal) {
+void Scanner::AddToken(tokens::Type type, std::optional<std::string>&& literal) {
     std::string lexeme = source_.substr(start_, current_ - start_);
     if (type == tokens::Type::kNumber) {
-        tokens_.emplace_back(tokens::Number(type, std::move(lexeme), std::stod(literal), line_));
+        assert(literal.has_value());
+        tokens_.emplace_back(tokens::Number(type, std::move(lexeme), std::stod(*literal), line_));
+    } else if (type == tokens::Type::kString) {
+        assert(literal.has_value());
+        tokens_.emplace_back(tokens::String(type, std::move(lexeme), std::move(*literal), line_));
     } else {
-        tokens_.emplace_back(tokens::String(type, std::move(lexeme), std::move(literal), line_));
+        tokens_.emplace_back(tokens::NonLiteral(type, std::move(lexeme), line_));
     }
 }
 
@@ -153,35 +148,53 @@ void Scanner::ScanString() {
 
     // Trim quotes
     std::string literal = source_.substr(start_ + 1, current_ - start_ - 2);
-    AddLiteralToken(tokens::Type::kString, std::move(literal));
+    AddToken(tokens::Type::kString, std::move(literal));
 }
 
 void Scanner::ScanNumber() {
-    while (std::isdigit(Peek()) != 0) {
+    while (IsDigit(Peek())) {
         Advance();
     }
 
     // Look for a fractional part
-    if (Peek() == '.' && std::isdigit(PeekNext()) != 0) {
+    if (Peek() == '.' && IsDigit(PeekNext())) {
         Advance();
-        while (std::isdigit(Peek()) != 0) {
+        while (IsDigit(Peek())) {
             Advance();
         }
     }
-    AddLiteralToken(tokens::Type::kNumber, source_.substr(start_, current_ - start_));
+    AddToken(tokens::Type::kNumber, source_.substr(start_, current_ - start_));
 }
 
 void Scanner::ScanIdentifierOrKeyword() {
-    while (std::isalnum(Peek()) != 0 || Peek() == '_') {
+    while (IsAlphaNumeric(Peek())) {
         Advance();
     }
 
     std::string text = source_.substr(start_, current_ - start_);
     if (kKeywords.contains(text)) {
-        AddNonLiteralToken(kKeywords.at(text));
+        AddToken(kKeywords.at(text));
     } else {
-        AddNonLiteralToken(tokens::Type::kIdentifier);
+        AddToken(tokens::Type::kIdentifier);
     }
+}
+
+void Scanner::SkipCommentaries() {
+    while (Peek() != '\n' && !IsAtEnd()) {
+        Advance();
+    }
+}
+
+bool Scanner::IsDigit(unsigned char c) {
+    return std::isdigit(c) != 0;
+}
+
+bool Scanner::IsAlpha(unsigned char c) {
+    return std::isalpha(c) != 0 || c == '_';
+}
+
+bool Scanner::IsAlphaNumeric(unsigned char c) {
+    return IsAlpha(c) || IsDigit(c);
 }
 
 }  // namespace lox
