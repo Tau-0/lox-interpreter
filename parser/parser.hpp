@@ -37,6 +37,17 @@ class Parser {
         return Match(type) || Match(types...);
     }
 
+    template <typename Sub, IsTokenType... Args>
+    expressions::ExprPtr ParseExpr(Sub&& sub_expr, Args&&... types) {
+        auto expr = sub_expr();
+        while (Match(std::forward<Args>(types)...)) {
+            auto op = Previous();
+            auto right = sub_expr();
+            expr = MakeExpr<expressions::Binary>(std::move(expr), std::move(right), std::move(op));
+        }
+        return expr;
+    }
+
  private:
     std::vector<tokens::Token> tokens_;
     uint32_t current_ = 0;

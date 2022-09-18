@@ -1,20 +1,33 @@
 #pragma once
 
-#include <data_structures/ast/expr_visitor.hpp>
 #include <data_structures/ast/expressions.hpp>
 
 namespace lox {
 
-class AstPrinter : public expressions::IExprVisitor<std::string> {
+class AstPrinter {
  public:
     std::string Print(const expressions::Expr& expr) const;
-    std::string Visit(const expressions::String& expr) const override;
-    std::string Visit(const expressions::Number& expr) const override;
-    std::string Visit(const expressions::Boolean& expr) const override;
-    std::string Visit(const expressions::Nil& expr) const override;
-    std::string Visit(const expressions::Unary& expr) const override;
-    std::string Visit(const expressions::Binary& expr) const override;
-    std::string Visit(const expressions::Grouping& expr) const override;
+
+    template <typename Arg>
+    std::string operator()(const Arg& arg) const {
+        if constexpr (std::is_same_v<Arg, expressions::String>) {
+            return arg.value_;
+        } else if constexpr (std::is_same_v<Arg, expressions::Number>) {
+            return std::to_string(arg.value_);
+        } else if constexpr (std::is_same_v<Arg, expressions::Boolean>) {
+            return arg.value_ ? "true" : "false";
+        } else if constexpr (std::is_same_v<Arg, expressions::Nil>) {
+            return "nil";
+        } else if constexpr (std::is_same_v<Arg, expressions::Unary>) {
+            return Parenthesize(arg.op_.GetLexeme(), *arg.expr_);
+        } else if constexpr (std::is_same_v<Arg, expressions::Binary>) {
+            return Parenthesize(arg.op_.GetLexeme(), *arg.left_, *arg.right_);
+        } else if constexpr (std::is_same_v<Arg, expressions::Grouping>) {
+            return Parenthesize("group", *arg.expr_);
+        } else {
+            throw 42;
+        }
+    }
 
  private:
     template <typename T>

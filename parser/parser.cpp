@@ -23,43 +23,31 @@ ExprPtr Parser::Expression() {
 }
 
 ExprPtr Parser::Equality() {
-    auto expr = Comparison();
-    while (Match(Type::kEqualEqual, Type::kBangEqual)) {
-        Token op = Previous();
-        auto right = Comparison();
-        expr = MakeExpr<expressions::Binary>(std::move(expr), std::move(right), std::move(op));
-    }
-    return expr;
+    auto matcher = [this]() -> expressions::ExprPtr {
+        return Comparison();
+    };
+    return ParseExpr(std::move(matcher), Type::kEqualEqual, Type::kBangEqual);
 }
 
 ExprPtr Parser::Comparison() {
-    auto expr = Term();
-    while (Match(Type::kLess, Type::kLessEqual, Type::kGreater, Type::kGreaterEqual)) {
-        Token op = Previous();
-        auto right = Term();
-        expr = MakeExpr<expressions::Binary>(std::move(expr), std::move(right), std::move(op));
-    }
-    return expr;
+    auto matcher = [this]() -> expressions::ExprPtr {
+        return Term();
+    };
+    return ParseExpr(std::move(matcher), Type::kLess, Type::kLessEqual, Type::kGreater, Type::kGreaterEqual);
 }
 
 ExprPtr Parser::Term() {
-    auto expr = Factor();
-    while (Match(Type::kMinus, Type::kPlus)) {
-        Token op = Previous();
-        auto right = Factor();
-        expr = MakeExpr<expressions::Binary>(std::move(expr), std::move(right), std::move(op));
-    }
-    return expr;
+    auto matcher = [this]() -> expressions::ExprPtr {
+        return Factor();
+    };
+    return ParseExpr(std::move(matcher), Type::kMinus, Type::kPlus);
 }
 
 ExprPtr Parser::Factor() {
-    auto expr = Unary();
-    while (Match(Type::kStar, Type::kSlash)) {
-        Token op = Previous();
-        auto right = Unary();
-        expr = MakeExpr<expressions::Binary>(std::move(expr), std::move(right), std::move(op));
-    }
-    return expr;
+    auto matcher = [this]() -> expressions::ExprPtr {
+        return Unary();
+    };
+    return ParseExpr(std::move(matcher), Type::kStar, Type::kSlash);
 }
 
 ExprPtr Parser::Unary() {
