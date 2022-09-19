@@ -57,4 +57,12 @@ Type Token::GetType() const {
     return std::visit(kVisitor, token_);
 }
 
+uint32_t Token::GetLine() const {
+    static constexpr auto kVisitor = [](const auto& arg) -> uint32_t {
+        return arg.line_;
+    };
+
+    return std::visit(kVisitor, token_);
+}
+
 }  // namespace lox::tokens

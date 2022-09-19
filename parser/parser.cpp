@@ -1,5 +1,7 @@
 #include "parser.hpp"
 
+#include <lox/lox.hpp>
+
 namespace lox {
 
 using expressions::ExprPtr;
@@ -7,13 +9,13 @@ using expressions::MakeExpr;
 using tokens::Token;
 using tokens::Type;
 
-Parser::Parser(std::vector<tokens::Token>&& tokens) : tokens_(std::move(tokens)) {
+Parser::Parser(std::vector<tokens::Token>&& tokens, Lox& lox) : tokens_(std::move(tokens)), lox_(lox) {
 }
 
 ExprPtr Parser::Parse() {
     try {
         return Expression();
-    } catch (...) {
+    } catch (const ParseError&) {
         return nullptr;
     }
 }
@@ -74,8 +76,7 @@ ExprPtr Parser::Primary() {
         Consume(Type::kRightParen, "Expected ')' after expression.");
         return MakeExpr<expressions::Grouping>(std::move(expr));
     }
-    // Error
-    return nullptr;
+    throw Error(Peek(), "Expected expression.");
 }
 
 bool Parser::Check(Type type) const {
@@ -108,8 +109,35 @@ const Token& Parser::Consume(Type type, const std::string& message) {
     if (Check(type)) {
         return Advance();
     }
-    // Error
-    throw;
+    throw Error(Peek(), message);
+}
+
+ParseError Parser::Error(const tokens::Token& token, const std::string& message) {
+    lox_.Error(token, message);
+    return ParseError("");
+}
+
+void Parser::Synchronize() {
+    Advance();
+
+    while (!IsAtEnd()) {
+        if (Previous().GetType() == tokens::Type::kSemicolon) {
+            return;
+        }
+
+        switch (Peek().GetType()) {
+            case tokens::Type::kClass:
+            case tokens::Type::kFun:
+            case tokens::Type::kVar:
+            case tokens::Type::kFor:
+            case tokens::Type::kIf:
+            case tokens::Type::kWhile:
+            case tokens::Type::kPrint:
+            case tokens::Type::kReturn:
+                return;
+        }
+        Advance();
+    }
 }
 
 bool Parser::Match(tokens::Type type) {

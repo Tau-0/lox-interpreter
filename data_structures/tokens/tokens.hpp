@@ -62,6 +62,7 @@ class Token {
     std::string ToString() const;
     const std::string& GetLexeme() const;
     Type GetType() const;
+    uint32_t GetLine() const;
 
  private:
     std::variant<NonLiteral, Number, String> token_;

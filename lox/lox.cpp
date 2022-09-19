@@ -33,10 +33,21 @@ void Lox::Error(int line, const std::string& message) {
     Report(line, "", message);
 }
 
+void Lox::Error(const tokens::Token& token, const std::string& message) {
+    if (token.GetType() == tokens::Type::kEof) {
+        Report(token.GetLine(), " at end", message);
+    } else {
+        Report(token.GetLine(), " at '" + token.GetLexeme() + "'", message);
+    }
+}
+
 void Lox::Run(std::string&& source) {
     Scanner scanner(std::move(source), *this);
-    Parser parser(scanner.ScanTokens());
+    Parser parser(scanner.ScanTokens(), *this);
     auto expr = parser.Parse();
+    if (expr == nullptr || had_error_) {
+        return;
+    }
     std::cout << AstPrinter().Print(*expr) << "\n";
 }
 

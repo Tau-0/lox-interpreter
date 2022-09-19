@@ -6,12 +6,19 @@
 
 namespace lox {
 
+class Lox;
+
+class ParseError : public std::runtime_error {
+ public:
+    using std::runtime_error::runtime_error;
+};
+
 template <typename T>
 concept IsTokenType = std::is_same_v<T, tokens::Type>;
 
 class Parser {
  public:
-    explicit Parser(std::vector<tokens::Token>&& tokens);
+    Parser(std::vector<tokens::Token>&& tokens, Lox& lox);
     expressions::ExprPtr Parse();
 
  private:
@@ -29,6 +36,8 @@ class Parser {
     const tokens::Token& Peek() const;
     const tokens::Token& Previous() const;
     const tokens::Token& Consume(tokens::Type type, const std::string& message);
+    ParseError Error(const tokens::Token& token, const std::string& message);
+    void Synchronize();
 
     bool Match(tokens::Type type);
 
@@ -51,6 +60,7 @@ class Parser {
  private:
     std::vector<tokens::Token> tokens_;
     uint32_t current_ = 0;
+    Lox& lox_;
 };
 
 }  // namespace lox

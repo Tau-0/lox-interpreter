@@ -1,5 +1,6 @@
 #pragma once
 
+#include <data_structures/tokens/tokens.hpp>
 #include <string>
 
 namespace lox {
@@ -9,6 +10,7 @@ class Lox {
     void RunFile(const std::string& filename);
     void RunPrompt();
     void Error(int line, const std::string& message);
+    void Error(const tokens::Token& token, const std::string& message);
 
  private:
     void Run(std::string&& source);
