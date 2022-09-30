@@ -188,7 +188,7 @@ void Scanner::SkipLineComment() {
 }
 
 void Scanner::SkipBlockComment() {
-    uint32_t nesting = 1;
+    size_t nesting = 1;
     while (nesting > 0) {
         if (Peek() == '\0') {
             lox_.Error(line_, "Unterminated block comment.");
@@ -206,7 +206,7 @@ void Scanner::SkipBlockComment() {
             Advance();
             continue;
         }
-        
+
         Advance();
     }
 }

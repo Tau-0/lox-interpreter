@@ -25,7 +25,10 @@ ExprPtr Parser::Expression() {
 }
 
 expressions::ExprPtr Parser::Comma() {
-
+    auto matcher = [this]() -> expressions::ExprPtr {
+        return Equality();
+    };
+    return ParseExpr(std::move(matcher), Type::kComma);
 }
 
 ExprPtr Parser::Equality() {
