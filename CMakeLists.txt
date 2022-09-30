@@ -8,10 +8,10 @@ add_compile_options(-Wall -Wextra -Wpedantic)
 include_directories(${PROJECT_SOURCE_DIR})
 
 file(GLOB_RECURSE SOURCES_NESTED
-        ${PROJECT_SOURCE_DIR}/data_structures/*.cpp
-        ${PROJECT_SOURCE_DIR}/lox/*.cpp
-        ${PROJECT_SOURCE_DIR}/parser/*.cpp
-        ${PROJECT_SOURCE_DIR}/scanner/*.cpp)
+        ${PROJECT_SOURCE_DIR}/data_structures/*
+        ${PROJECT_SOURCE_DIR}/lox/*
+        ${PROJECT_SOURCE_DIR}/parser/*
+        ${PROJECT_SOURCE_DIR}/scanner/*)
 
 set(SOURCES main.cpp ${SOURCES_NESTED})
 
