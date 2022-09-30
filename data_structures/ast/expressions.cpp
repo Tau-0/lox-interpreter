@@ -18,6 +18,10 @@ Binary::Binary(lox::expressions::ExprPtr left, lox::expressions::ExprPtr right, 
     : left_(std::move(left)), right_(std::move(right)), op_(std::move(op)) {
 }
 
+TernaryConditional::TernaryConditional(ExprPtr first, ExprPtr second, ExprPtr third)
+    : first_(std::move(first)), second_(std::move(second)), third_(std::move(third)) {
+}
+
 Grouping::Grouping(lox::expressions::ExprPtr expr) : expr_(std::move(expr)) {
 }
 

@@ -22,6 +22,8 @@ class AstPrinter {
             return Parenthesize(arg.op_.GetLexeme(), *arg.expr_);
         } else if constexpr (std::is_same_v<Arg, expressions::Binary>) {
             return Parenthesize(arg.op_.GetLexeme(), *arg.left_, *arg.right_);
+        } else if constexpr (std::is_same_v<Arg, expressions::TernaryConditional>) {
+            return Parenthesize("?", *arg.first_, *arg.second_, *arg.third_);
         } else if constexpr (std::is_same_v<Arg, expressions::Grouping>) {
             return Parenthesize("group", *arg.expr_);
         } else {

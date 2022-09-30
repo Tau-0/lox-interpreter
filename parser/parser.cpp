@@ -26,9 +26,20 @@ ExprPtr Parser::Expression() {
 
 expressions::ExprPtr Parser::Comma() {
     auto matcher = [this]() -> expressions::ExprPtr {
-        return Equality();
+        return TernaryConditional();
     };
     return ParseExpr(std::move(matcher), Type::kComma);
+}
+
+expressions::ExprPtr Parser::TernaryConditional() {
+    auto expr = Equality();
+    if (Match(Type::kQuestion)) {
+        auto then_branch = Expression();
+        Consume(Type::kColon, "Expected ':' after then-branch of ternary conditional expression.");
+        auto else_branch = Expression();
+        expr = MakeExpr<expressions::TernaryConditional>(std::move(expr), std::move(then_branch), std::move(else_branch));
+    }
+    return expr;
 }
 
 ExprPtr Parser::Equality() {

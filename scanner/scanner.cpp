@@ -66,6 +66,10 @@ void Scanner::ScanToken() {
         AddToken(Match('=') ? tokens::Type::kLessEqual : tokens::Type::kLess);
     } else if (c == '>') {
         AddToken(Match('=') ? tokens::Type::kGreaterEqual : tokens::Type::kGreater);
+    } else if (c == '?') {
+        AddToken(tokens::Type::kQuestion);
+    } else if (c == ':') {
+        AddToken(tokens::Type::kColon);
     } else if (c == '/' && Match('/')) {
         SkipLineComment();
     } else if (c == '/' && Match('*')) {

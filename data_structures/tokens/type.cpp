@@ -9,10 +9,12 @@ const std::unordered_map<Type, std::string> kTypeStrings = {
     {Type::kRightParen, ")"},             //
     {Type::kLeftBrace, "{"},              //
     {Type::kRightBrace, "}"},             //
+    {Type::kColon, ":"},                  //
     {Type::kComma, ","},                  //
     {Type::kDot, "."},                    //
     {Type::kMinus, "-"},                  //
     {Type::kPlus, "+"},                   //
+    {Type::kQuestion, "?"},               //
     {Type::kSemicolon, ";"},              //
     {Type::kSlash, "/"},                  //
     {Type::kStar, "*"},                   //
