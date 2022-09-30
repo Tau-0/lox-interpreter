@@ -67,7 +67,9 @@ void Scanner::ScanToken() {
     } else if (c == '>') {
         AddToken(Match('=') ? tokens::Type::kGreaterEqual : tokens::Type::kGreater);
     } else if (c == '/' && Match('/')) {
-        SkipCommentaries();
+        SkipLineComment();
+    } else if (c == '/' && Match('*')) {
+        SkipBlockComment();
     } else if (c == '/') {
         AddToken(tokens::Type::kSlash);
     } else if (c == ' ' || c == '\r' || c == '\t') {
@@ -179,8 +181,32 @@ void Scanner::ScanIdentifierOrKeyword() {
     }
 }
 
-void Scanner::SkipCommentaries() {
+void Scanner::SkipLineComment() {
     while (Peek() != '\n' && !IsAtEnd()) {
+        Advance();
+    }
+}
+
+void Scanner::SkipBlockComment() {
+    uint32_t nesting = 1;
+    while (nesting > 0) {
+        if (Peek() == '\0') {
+            lox_.Error(line_, "Unterminated block comment.");
+            return;
+        }
+
+        if (Peek() == '/' && PeekNext() == '*') {
+            ++nesting;
+            Advance();
+            Advance();
+            continue;
+        } else if (Peek() == '*' && PeekNext() == '/') {
+            --nesting;
+            Advance();
+            Advance();
+            continue;
+        }
+        
         Advance();
     }
 }

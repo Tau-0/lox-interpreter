@@ -21,7 +21,11 @@ ExprPtr Parser::Parse() {
 }
 
 ExprPtr Parser::Expression() {
-    return Equality();
+    return Comma();
+}
+
+expressions::ExprPtr Parser::Comma() {
+
 }
 
 ExprPtr Parser::Equality() {
@@ -135,8 +139,9 @@ void Parser::Synchronize() {
             case tokens::Type::kPrint:
             case tokens::Type::kReturn:
                 return;
+            default:
+                Advance();
         }
-        Advance();
     }
 }
 

@@ -27,7 +27,8 @@ class Scanner {
     char PeekNext() const;
     char PeekImpl(size_t shift) const;
     void ScanIdentifierOrKeyword();
-    void SkipCommentaries();
+    void SkipLineComment();
+    void SkipBlockComment();
 
     static bool IsDigit(unsigned char c);
     static bool IsAlpha(unsigned char c);

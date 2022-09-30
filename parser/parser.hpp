@@ -8,8 +8,7 @@ namespace lox {
 
 class Lox;
 
-class ParseError : public std::runtime_error {
- public:
+struct ParseError : public std::runtime_error {
     using std::runtime_error::runtime_error;
 };
 
@@ -23,6 +22,7 @@ class Parser {
 
  private:
     expressions::ExprPtr Expression();
+    expressions::ExprPtr Comma();
     expressions::ExprPtr Equality();
     expressions::ExprPtr Comparison();
     expressions::ExprPtr Term();
