@@ -23,7 +23,7 @@ class Parser {
  private:
     expressions::ExprPtr Expression();
     expressions::ExprPtr Comma();
-    expressions::ExprPtr TernaryConditional();
+    expressions::ExprPtr Conditional();
     expressions::ExprPtr Equality();
     expressions::ExprPtr Comparison();
     expressions::ExprPtr Term();

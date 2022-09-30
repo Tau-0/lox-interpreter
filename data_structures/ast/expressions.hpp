@@ -54,8 +54,8 @@ struct Binary {
     tokens::Token op_;
 };
 
-struct TernaryConditional {
-    TernaryConditional(ExprPtr first, ExprPtr second, ExprPtr third);
+struct Conditional {
+    Conditional(ExprPtr first, ExprPtr second, ExprPtr third);
 
     ExprPtr first_;
     ExprPtr second_;
@@ -80,7 +80,7 @@ class Expr {
     }
 
  private:
-    std::variant<String, Number, Boolean, Nil, Unary, Binary, TernaryConditional, Grouping> expr_;
+    std::variant<String, Number, Boolean, Nil, Unary, Binary, Conditional, Grouping> expr_;
 };
 
 template <typename T, typename... Args>

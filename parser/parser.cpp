@@ -4,6 +4,16 @@
 
 namespace lox {
 
+// expression  -> comma ;
+// comma       -> conditional ( "," conditional )* ;
+// conditional -> equality ( "?" expression ":" expression )? ;
+// equality    -> comparison ( ( "!=" | "==" ) comparison )* ;
+// comparison  -> term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
+// term        -> factor ( ( "-" | "+" ) factor )* ;
+// factor      -> unary ( ( "/" | "*" ) unary )* ;
+// unary       -> ( "!" | "-" ) unary ;
+// primary     -> NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" ;
+
 using expressions::ExprPtr;
 using expressions::MakeExpr;
 using tokens::Token;
@@ -26,18 +36,18 @@ ExprPtr Parser::Expression() {
 
 expressions::ExprPtr Parser::Comma() {
     auto matcher = [this]() -> expressions::ExprPtr {
-        return TernaryConditional();
+        return Conditional();
     };
     return ParseExpr(std::move(matcher), Type::kComma);
 }
 
-expressions::ExprPtr Parser::TernaryConditional() {
+expressions::ExprPtr Parser::Conditional() {
     auto expr = Equality();
     if (Match(Type::kQuestion)) {
         auto then_branch = Expression();
         Consume(Type::kColon, "Expected ':' after then-branch of ternary conditional expression.");
         auto else_branch = Expression();
-        expr = MakeExpr<expressions::TernaryConditional>(std::move(expr), std::move(then_branch), std::move(else_branch));
+        expr = MakeExpr<expressions::Conditional>(std::move(expr), std::move(then_branch), std::move(else_branch));
     }
     return expr;
 }
