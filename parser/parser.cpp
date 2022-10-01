@@ -11,8 +11,14 @@ namespace lox {
 // comparison  -> term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
 // term        -> factor ( ( "-" | "+" ) factor )* ;
 // factor      -> unary ( ( "/" | "*" ) unary )* ;
-// unary       -> ( "!" | "-" ) unary ;
+// unary       -> ( "!" | "-" ) primary ;
 // primary     -> NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" ;
+//
+// Error productions for binary expressions without lhs:
+// primary     -> ( "!=" | "==" ) equality
+//              | ( ">" | ">=" | "<" | "<=" ) comparison
+//              | "+" term
+//              | ( "/" | "*" ) factor
 
 using expressions::ExprPtr;
 using expressions::MakeExpr;
@@ -104,6 +110,26 @@ ExprPtr Parser::Primary() {
         Consume(Type::kRightParen, "Expected ')' after expression.");
         return MakeExpr<expressions::Grouping>(std::move(expr));
     }
+
+    // Error productions
+    if (Match(Type::kEqualEqual, Type::kBangEqual)) {
+        Error(Previous(), "Missing left-hand operand.");
+        Equality();
+        return nullptr;
+    } else if (Match(Type::kLess, Type::kLessEqual, Type::kGreater, Type::kGreaterEqual)) {
+        Error(Previous(), "Missing left-hand operand.");
+        Comparison();
+        return nullptr;
+    } else if (Match(Type::kPlus)) {
+        Error(Previous(), "Missing left-hand operand.");
+        Term();
+        return nullptr;
+    } else if (Match(Type::kSlash, Type::kStar)) {
+        Error(Previous(), "Missing left-hand operand.");
+        Factor();
+        return nullptr;
+    }
+
     throw Error(Peek(), "Expected expression.");
 }
 
