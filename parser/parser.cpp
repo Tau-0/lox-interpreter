@@ -18,7 +18,7 @@ namespace lox {
 // primary     -> ( "!=" | "==" ) equality
 //              | ( ">" | ">=" | "<" | "<=" ) comparison
 //              | "+" term
-//              | ( "/" | "*" ) factor
+//              | ( "/" | "*" ) factor ;
 
 using expressions::ExprPtr;
 using expressions::MakeExpr;
