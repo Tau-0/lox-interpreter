@@ -2,6 +2,7 @@
 
 #include <sysexits.h>
 
+#include <data_structures/ast/ast_interpreter.hpp>
 #include <data_structures/ast/ast_printer.hpp>
 #include <fstream>
 #include <iostream>
@@ -48,7 +49,8 @@ void Lox::Run(std::string&& source) {
     if (expr == nullptr || had_error_) {
         return;
     }
-    std::cout << AstPrinter().Print(*expr) << "\n";
+    // std::cout << AstPrinter().Print(*expr) << "\n";
+    std::cout << AstInterpreter().Interpret(*expr).Stringify() << "\n";
 }
 
 void Lox::Report(int line, const std::string& where, const std::string& message) {
