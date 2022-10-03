@@ -5,17 +5,17 @@
 
 namespace lox {
 
+template <typename T>
+concept IsLiteral = std::is_same_v<T, expressions::String> || std::is_same_v<T, expressions::Number> ||
+                    std::is_same_v<T, expressions::Boolean>;
+
 class AstInterpreter {
  public:
     Value Interpret(const expressions::Expr& expr) const;
 
     template <typename Arg>
     Value operator()(const Arg& arg) const {
-        if constexpr (std::is_same_v<Arg, expressions::String>) {
-            return Value(arg.value_);
-        } else if constexpr (std::is_same_v<Arg, expressions::Number>) {
-            return Value(arg.value_);
-        } else if constexpr (std::is_same_v<Arg, expressions::Boolean>) {
+        if constexpr (IsLiteral<Arg>) {
             return Value(arg.value_);
         } else if constexpr (std::is_same_v<Arg, expressions::Nil>) {
             return {};
