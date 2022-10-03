@@ -1,6 +1,7 @@
 #pragma once
 
 #include <data_structures/tokens/tokens.hpp>
+#include <lox/helpers.hpp>
 #include <memory>
 #include <string>
 #include <variant>
@@ -88,5 +89,11 @@ template <typename T, typename... Args>
 ExprPtr MakeExpr(Args&&... args) {
     return std::make_shared<Expr>(T(std::forward<Args>(args)...));
 }
+
+template <typename T>
+concept IsLiteral = IsTypeOf<T, String, Number, Boolean, Nil>;
+
+template <typename T>
+concept IsExpression = IsLiteral<T> || IsTypeOf<T, Unary, Binary, Conditional, Grouping>;
 
 }  // namespace lox::expressions

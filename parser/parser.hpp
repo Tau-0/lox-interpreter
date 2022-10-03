@@ -1,21 +1,39 @@
 #pragma once
 
 #include <data_structures/ast/expressions.hpp>
+#include <data_structures/ast/statements.hpp>
 #include <data_structures/tokens/tokens.hpp>
 #include <lox/errors.hpp>
 #include <vector>
 
 namespace lox {
 
-class Lox;
+// program          -> statement* EOF ;
+// statement        -> exprStmt | printStmt ;
+// exprStmt         -> expression ";" ;
+// printStmt        -> "print" expression ";" ;
+// expression       -> comma ;
+// comma            -> conditional ( "," conditional )* ;
+// conditional      -> equality ( "?" expression ":" expression )? ;
+// equality         -> comparison ( ( "!=" | "==" ) comparison )* ;
+// comparison       -> term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
+// term             -> factor ( ( "-" | "+" ) factor )* ;
+// factor           -> unary ( ( "/" | "*" ) unary )* ;
+// unary            -> ( "!" | "-" ) primary ;
+// primary          -> NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" ;
+//
+// Error productions for binary expressions without lhs:
+// primary          -> ( "!=" | "==" ) equality
+//                  | ( ">" | ">=" | "<" | "<=" ) comparison
+//                  | "+" term
+//                  | ( "/" | "*" ) factor ;
 
-template <typename T>
-concept IsTokenType = std::is_same_v<T, tokens::Type>;
+class Lox;
 
 class Parser {
  public:
     Parser(std::vector<tokens::Token>&& tokens, Lox& lox);
-    expressions::ExprPtr Parse();
+    std::vector<statements::Stmt> Parse();
 
  private:
     expressions::ExprPtr Expression();
@@ -28,6 +46,10 @@ class Parser {
     expressions::ExprPtr Unary();
     expressions::ExprPtr Primary();
 
+    statements::Stmt Statement();
+    statements::Stmt PrintStatement();
+    statements::Stmt ExpressionStatement();
+
     bool Check(tokens::Type type) const;
     const tokens::Token& Advance();
     bool IsAtEnd() const;
@@ -39,12 +61,12 @@ class Parser {
 
     bool Match(tokens::Type type);
 
-    template <IsTokenType T, IsTokenType... Args>
+    template <tokens::IsTokenType T, tokens::IsTokenType... Args>
     bool Match(T type, Args... types) {
         return Match(type) || Match(types...);
     }
 
-    template <typename Sub, IsTokenType... Args>
+    template <typename Sub, tokens::IsTokenType... Args>
     expressions::ExprPtr ParseExpr(Sub&& sub_expr, Args&&... types) {
         auto expr = sub_expr();
         while (Match(std::forward<Args>(types)...)) {

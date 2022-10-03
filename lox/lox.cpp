@@ -54,12 +54,12 @@ void Lox::RuntimeError(const lox::RuntimeError& error) {
 void Lox::Run(std::string&& source) {
     Scanner scanner(std::move(source), *this);
     Parser parser(scanner.ScanTokens(), *this);
-    auto expr = parser.Parse();
-    if (expr == nullptr || had_error_) {
-        return;
-    }
+    //    auto expr = parser.Parse();
+    //    if (expr == nullptr || had_error_) {
+    //        return;
+    //    }
     // std::cout << AstPrinter().Print(*expr) << "\n";
-    std::cout << AstInterpreter(*this).Interpret(*expr).Stringify() << "\n";
+    // std::cout << AstInterpreter(*this).Interpret(*expr).Stringify() << "\n";
 }
 
 void Lox::Report(int line, const std::string& where, const std::string& message) {

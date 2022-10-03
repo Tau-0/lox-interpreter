@@ -4,22 +4,6 @@
 
 namespace lox {
 
-// expression  -> comma ;
-// comma       -> conditional ( "," conditional )* ;
-// conditional -> equality ( "?" expression ":" expression )? ;
-// equality    -> comparison ( ( "!=" | "==" ) comparison )* ;
-// comparison  -> term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
-// term        -> factor ( ( "-" | "+" ) factor )* ;
-// factor      -> unary ( ( "/" | "*" ) unary )* ;
-// unary       -> ( "!" | "-" ) primary ;
-// primary     -> NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" ;
-//
-// Error productions for binary expressions without lhs:
-// primary     -> ( "!=" | "==" ) equality
-//              | ( ">" | ">=" | "<" | "<=" ) comparison
-//              | "+" term
-//              | ( "/" | "*" ) factor ;
-
 using expressions::ExprPtr;
 using expressions::MakeExpr;
 using tokens::Token;
@@ -28,12 +12,12 @@ using tokens::Type;
 Parser::Parser(std::vector<tokens::Token>&& tokens, Lox& lox) : tokens_(std::move(tokens)), lox_(lox) {
 }
 
-ExprPtr Parser::Parse() {
-    try {
-        return Expression();
-    } catch (const ParseError&) {
-        return nullptr;
+std::vector<statements::Stmt> Parser::Parse() {
+    std::vector<statements::Stmt> statements;
+    while (!IsAtEnd()) {
+        statements.push_back(Statement());
     }
+    return statements;
 }
 
 ExprPtr Parser::Expression() {
@@ -131,6 +115,26 @@ ExprPtr Parser::Primary() {
     }
 
     throw Error(Peek(), "Expected expression.");
+}
+
+statements::Stmt Parser::Statement() {
+    if (Match(tokens::Type::kPrint)) {
+        return PrintStatement();
+    } else {
+        return ExpressionStatement();
+    }
+}
+
+statements::Stmt Parser::PrintStatement() {
+    auto value = Expression();
+    Consume(tokens::Type::kSemicolon, "Expected ';' after value.");
+    return statements::MakeStmt<statements::Print>(std::move(value));
+}
+
+statements::Stmt Parser::ExpressionStatement() {
+    auto expr = Expression();
+    Consume(tokens::Type::kSemicolon, "Expected ';' after value.");
+    return statements::MakeStmt<statements::Expression>(std::move(expr));
 }
 
 bool Parser::Check(Type type) const {

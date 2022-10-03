@@ -73,4 +73,7 @@ Token MakeToken(Args&&... args) {
     return Token(T(std::forward<Args>(args)...));
 }
 
+template <typename T>
+concept IsTokenType = std::is_same_v<T, tokens::Type>;
+
 }  // namespace lox::tokens

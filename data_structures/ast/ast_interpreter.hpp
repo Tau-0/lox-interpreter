@@ -1,24 +1,21 @@
 #pragma once
 
 #include <data_structures/ast/expressions.hpp>
+#include <data_structures/ast/statements.hpp>
 #include <data_structures/ast/value.hpp>
 
 namespace lox {
 
 class Lox;
 
-template <typename T>
-concept IsLiteral = std::is_same_v<T, expressions::String> || std::is_same_v<T, expressions::Number> ||
-                    std::is_same_v<T, expressions::Boolean> || std::is_same_v<T, expressions::Nil>;
-
 class AstInterpreter {
  public:
     explicit AstInterpreter(Lox& lox);
     Value Interpret(const expressions::Expr& expr) const;
 
-    template <typename Arg>
+    template <expressions::IsExpression Arg>
     Value operator()(const Arg& arg) const {
-        if constexpr (IsLiteral<Arg>) {
+        if constexpr (expressions::IsLiteral<Arg>) {
             return Value(arg.value_);
         } else if constexpr (std::is_same_v<Arg, expressions::Unary>) {
             return EvaluateUnary(arg);
@@ -33,8 +30,12 @@ class AstInterpreter {
         }
     }
 
- private:
-    Value Evaluate(const expressions::Expr& expr) const;
+    template <statements::IsStatement Arg>
+    void operator()(const Arg& arg) const {
+
+    }
+
+    private : Value Evaluate(const expressions::Expr& expr) const;
     Value EvaluateUnary(const expressions::Unary& expr) const;
     Value EvaluateBinary(const expressions::Binary& expr) const;
     Value EvaluateConditional(const expressions::Conditional& expr) const;
