@@ -52,4 +52,12 @@ std::string AsString(Type type) {
     return kTypeStrings.at(type);
 }
 
+bool IsArithmetic(Type type) {
+    return type == Type::kMinus || type == Type::kPlus || type == Type::kSlash || type == Type::kStar;
+}
+
+bool IsComparison(Type type) {
+    return type == Type::kLess || type == Type::kLessEqual || type == Type::kGreater || type == Type::kGreaterEqual;
+}
+
 }  // namespace lox::tokens

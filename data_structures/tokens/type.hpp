@@ -52,5 +52,7 @@ enum class Type {
 };
 
 std::string AsString(Type type);
+bool IsArithmetic(Type type);
+bool IsComparison(Type type);
 
 }  // namespace lox::tokens

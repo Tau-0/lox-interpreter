@@ -33,6 +33,9 @@ class Value {
     bool operator!=(const Value& rhs) const;
 
  private:
+    static std::string StringifyDouble(double value);
+
+ private:
     std::variant<std::monostate, bool, double, std::string> value_;
 };
 

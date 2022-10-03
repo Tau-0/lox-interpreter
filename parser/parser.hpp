@@ -2,15 +2,12 @@
 
 #include <data_structures/ast/expressions.hpp>
 #include <data_structures/tokens/tokens.hpp>
+#include <lox/errors.hpp>
 #include <vector>
 
 namespace lox {
 
 class Lox;
-
-struct ParseError : public std::runtime_error {
-    using std::runtime_error::runtime_error;
-};
 
 template <typename T>
 concept IsTokenType = std::is_same_v<T, tokens::Type>;

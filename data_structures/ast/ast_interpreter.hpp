@@ -5,12 +5,15 @@
 
 namespace lox {
 
+class Lox;
+
 template <typename T>
 concept IsLiteral = std::is_same_v<T, expressions::String> || std::is_same_v<T, expressions::Number> ||
                     std::is_same_v<T, expressions::Boolean> || std::is_same_v<T, expressions::Nil>;
 
 class AstInterpreter {
  public:
+    explicit AstInterpreter(Lox& lox);
     Value Interpret(const expressions::Expr& expr) const;
 
     template <typename Arg>
@@ -35,7 +38,14 @@ class AstInterpreter {
     Value EvaluateUnary(const expressions::Unary& expr) const;
     Value EvaluateBinary(const expressions::Binary& expr) const;
     Value EvaluateConditional(const expressions::Conditional& expr) const;
+    Value NumberOperation(tokens::Type type, double lhs, double rhs) const;
+    Value SumOrConcatenate(const tokens::Token& op, const Value& lhs, const Value& rhs) const;
     bool IsTruthy(const Value& value) const;
+    void CheckNumberOperand(const tokens::Token& op, const Value& value) const;
+    void CheckNumberOperands(const tokens::Token& op, const lox::Value& lhs, const lox::Value& rhs) const;
+
+ private:
+    Lox& lox_;
 };
 
 }  // namespace lox

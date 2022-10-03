@@ -20,12 +20,23 @@ std::string Value::Stringify() const {
         } else if constexpr (std::is_same_v<T, bool>) {
             return arg ? "true" : "false";
         } else if constexpr (std::is_same_v<T, double>) {
-            return std::to_string(arg);
+            return Value::StringifyDouble(arg);
+        } else {
+            return {};
         }
-        return {};
     };
 
     return std::visit(kVisitor, value_);
+}
+
+std::string Value::StringifyDouble(double value) {
+    std::string result(std::to_string(value));
+    // Deleting trailing zeroes
+    result.erase(result.find_last_not_of('0') + 1, std::string::npos);
+    if (result.back() == '.') {
+        result.pop_back();
+    }
+    return result;
 }
 
 }  // namespace lox
