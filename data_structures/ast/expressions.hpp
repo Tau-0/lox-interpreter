@@ -36,7 +36,8 @@ struct Boolean {
     bool value_ = false;
 };
 
-struct Nil {  //
+struct Nil {
+    std::monostate value_;
 };
 
 struct Unary {
