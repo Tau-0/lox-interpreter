@@ -40,7 +40,7 @@ Value AstInterpreter::EvaluateBinary(const expressions::Binary& expr) const {
         return SumOrConcatenate(expr.op_, lhs, rhs);
     } else if (tokens::IsArithmetic(expr.op_.GetType()) || tokens::IsComparison(expr.op_.GetType())) {
         CheckNumberOperands(expr.op_, lhs, rhs);
-        return NumberOperation(expr.op_.GetType(), lhs.As<double>(), rhs.As<double>());
+        return NumberOperation(expr.op_, lhs.As<double>(), rhs.As<double>());
     } else if (expr.op_.GetType() == tokens::Type::kBangEqual) {
         return Value(lhs != rhs);
     } else if (expr.op_.GetType() == tokens::Type::kEqualEqual) {
@@ -61,12 +61,16 @@ Value AstInterpreter::EvaluateConditional(const expressions::Conditional& expr) 
     }
 }
 
-Value AstInterpreter::NumberOperation(tokens::Type type, double lhs, double rhs) const {
+Value AstInterpreter::NumberOperation(const tokens::Token& op, double lhs, double rhs) const {
+    auto type = op.GetType();
     if (type == tokens::Type::kMinus) {
         return Value(lhs - rhs);
     } else if (type == tokens::Type::kStar) {
         return Value(lhs * rhs);
     } else if (type == tokens::Type::kSlash) {
+        if (rhs == 0) {
+            throw RuntimeError(op, "Division by zero.");
+        }
         return Value(lhs / rhs);
     } else if (type == tokens::Type::kGreater) {
         return Value(lhs > rhs);

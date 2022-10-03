@@ -38,7 +38,7 @@ class AstInterpreter {
     Value EvaluateUnary(const expressions::Unary& expr) const;
     Value EvaluateBinary(const expressions::Binary& expr) const;
     Value EvaluateConditional(const expressions::Conditional& expr) const;
-    Value NumberOperation(tokens::Type type, double lhs, double rhs) const;
+    Value NumberOperation(const tokens::Token& op, double lhs, double rhs) const;
     Value SumOrConcatenate(const tokens::Token& op, const Value& lhs, const Value& rhs) const;
     bool IsTruthy(const Value& value) const;
     void CheckNumberOperand(const tokens::Token& op, const Value& value) const;
