@@ -115,7 +115,7 @@ void AstInterpreter::CheckNumberOperand(const tokens::Token& op, const lox::Valu
 }
 
 void AstInterpreter::CheckNumberOperands(const tokens::Token& op, const lox::Value& lhs, const lox::Value& rhs) const {
-    if (!lhs.Is<double>() && !rhs.Is<double>()) {
+    if (!lhs.Is<double>() || !rhs.Is<double>()) {
         throw RuntimeError(op, "Operands must be numbers.");
     }
 }
