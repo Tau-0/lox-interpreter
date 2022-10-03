@@ -32,10 +32,10 @@ class AstInterpreter {
 
     template <statements::IsStatement Arg>
     void operator()(const Arg& arg) const {
-
     }
 
-    private : Value Evaluate(const expressions::Expr& expr) const;
+ private:
+    Value Evaluate(const expressions::Expr& expr) const;
     Value EvaluateUnary(const expressions::Unary& expr) const;
     Value EvaluateBinary(const expressions::Binary& expr) const;
     Value EvaluateConditional(const expressions::Conditional& expr) const;
