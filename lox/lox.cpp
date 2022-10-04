@@ -2,7 +2,6 @@
 
 #include <sysexits.h>
 
-#include <data_structures/ast/ast_interpreter.hpp>
 #include <data_structures/ast/ast_printer.hpp>
 #include <fstream>
 #include <iostream>
@@ -15,7 +14,8 @@ namespace lox {
 void Lox::RunFile(const std::string& filename) {
     std::ifstream file_stream(filename);
     std::string source{std::istreambuf_iterator<char>(file_stream), std::istreambuf_iterator<char>()};
-    Run(std::move(source));
+    AstInterpreter interpreter(*this);
+    Run(std::move(source), interpreter);
     if (had_error_) {
         std::exit(EX_DATAERR);
     } else if (had_runtime_error_) {
@@ -24,11 +24,12 @@ void Lox::RunFile(const std::string& filename) {
 }
 
 void Lox::RunPrompt() {
+    AstInterpreter interpreter(*this);
     while (!std::cin.eof()) {
         std::cout << "> ";
         std::string line;
         std::getline(std::cin, line);
-        Run(std::move(line));
+        Run(std::move(line), interpreter);
         had_error_ = false;
         had_runtime_error_ = false;
     }
@@ -51,15 +52,14 @@ void Lox::RuntimeError(const lox::RuntimeError& error) {
     had_runtime_error_ = true;
 }
 
-void Lox::Run(std::string&& source) {
+void Lox::Run(std::string&& source, AstInterpreter& interpreter) {
     Scanner scanner(std::move(source), *this);
     Parser parser(scanner.ScanTokens(), *this);
-    //    auto expr = parser.Parse();
-    //    if (expr == nullptr || had_error_) {
-    //        return;
-    //    }
-    // std::cout << AstPrinter().Print(*expr) << "\n";
-    // std::cout << AstInterpreter(*this).Interpret(*expr).Stringify() << "\n";
+    auto statements = parser.Parse();
+    if (statements.empty() || had_error_) {
+        return;
+    }
+    interpreter.Interpret(statements);
 }
 
 void Lox::Report(int line, const std::string& where, const std::string& message) {

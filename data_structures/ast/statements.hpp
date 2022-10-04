@@ -17,19 +17,33 @@ struct Print {
     expressions::ExprPtr expr_;
 };
 
+struct Var {
+    Var(tokens::Token&& name, expressions::ExprPtr initializer);
+
+    tokens::Token name_;
+    expressions::ExprPtr initializer_;
+};
+
 class Stmt {
  public:
+    Stmt() = default;
+
     template <typename T>
     explicit Stmt(T&& stmt) : stmt_(std::forward<T>(stmt)) {
     }
 
     template <typename V>
-    auto Accept(const V& visitor) const {
+    auto Accept(V& visitor) const {
         return std::visit(visitor, stmt_);
     }
 
+    template <typename T>
+    bool Is() const {
+        return std::holds_alternative<T>(stmt_);
+    }
+
  private:
-    std::variant<Expression, Print> stmt_;
+    std::variant<std::monostate, Expression, Print, Var> stmt_;
 };
 
 template <typename T, typename... Args>
@@ -38,6 +52,6 @@ Stmt MakeStmt(Args&&... args) {
 }
 
 template <typename T>
-concept IsStatement = IsTypeOf<T, Expression, Print>;
+concept IsStatement = IsTypeOf<T, std::monostate, Expression, Print, Var>;
 
 }  // namespace lox::statements

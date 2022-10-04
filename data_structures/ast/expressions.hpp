@@ -70,6 +70,19 @@ struct Grouping {
     ExprPtr expr_;
 };
 
+struct Variable {
+    explicit Variable(const tokens::Token& name);
+
+    tokens::Token name_;
+};
+
+struct Assign {
+    Assign(const tokens::Token& name, ExprPtr value);
+
+    tokens::Token name_;
+    ExprPtr value_;
+};
+
 class Expr {
  public:
     template <typename T>
@@ -77,12 +90,22 @@ class Expr {
     }
 
     template <typename V>
-    auto Accept(const V& visitor) const {
+    auto Accept(V& visitor) const {
         return std::visit(visitor, expr_);
     }
 
+    template <typename T>
+    const T& As() const {
+        return std::get<T>(expr_);
+    }
+
+    template <typename T>
+    bool Is() const {
+        return std::holds_alternative<T>(expr_);
+    }
+
  private:
-    std::variant<String, Number, Boolean, Nil, Unary, Binary, Conditional, Grouping> expr_;
+    std::variant<String, Number, Boolean, Nil, Unary, Binary, Conditional, Grouping, Variable, Assign> expr_;
 };
 
 template <typename T, typename... Args>
@@ -94,6 +117,6 @@ template <typename T>
 concept IsLiteral = IsTypeOf<T, String, Number, Boolean, Nil>;
 
 template <typename T>
-concept IsExpression = IsLiteral<T> || IsTypeOf<T, Unary, Binary, Conditional, Grouping>;
+concept IsExpression = IsLiteral<T> || IsTypeOf<T, Unary, Binary, Conditional, Grouping, Variable, Assign>;
 
 }  // namespace lox::expressions

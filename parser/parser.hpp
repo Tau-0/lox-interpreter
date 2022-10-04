@@ -8,19 +8,22 @@
 
 namespace lox {
 
-// program          -> statement* EOF ;
+// program          -> declaration* EOF ;
+// declaration      -> var_decl | statement ;
+// var_decl         -> "var" IDENTIFIER ( "=" expression )? ";" ;
 // statement        -> exprStmt | printStmt ;
 // exprStmt         -> expression ";" ;
 // printStmt        -> "print" expression ";" ;
 // expression       -> comma ;
-// comma            -> conditional ( "," conditional )* ;
+// comma            -> assignment ( "," assignment )* ;
+// assignment       -> IDENTIFIER "=" assignment | conditional ;
 // conditional      -> equality ( "?" expression ":" expression )? ;
 // equality         -> comparison ( ( "!=" | "==" ) comparison )* ;
 // comparison       -> term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
 // term             -> factor ( ( "-" | "+" ) factor )* ;
 // factor           -> unary ( ( "/" | "*" ) unary )* ;
 // unary            -> ( "!" | "-" ) primary ;
-// primary          -> NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" ;
+// primary          -> NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" | IDENTIFIER ;
 //
 // Error productions for binary expressions without lhs:
 // primary          -> ( "!=" | "==" ) equality
@@ -38,6 +41,7 @@ class Parser {
  private:
     expressions::ExprPtr Expression();
     expressions::ExprPtr Comma();
+    expressions::ExprPtr Assignment();
     expressions::ExprPtr Conditional();
     expressions::ExprPtr Equality();
     expressions::ExprPtr Comparison();
@@ -46,6 +50,8 @@ class Parser {
     expressions::ExprPtr Unary();
     expressions::ExprPtr Primary();
 
+    statements::Stmt Declaration();
+    statements::Stmt VarDeclaration();
     statements::Stmt Statement();
     statements::Stmt PrintStatement();
     statements::Stmt ExpressionStatement();

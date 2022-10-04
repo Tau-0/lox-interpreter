@@ -15,7 +15,11 @@ Parser::Parser(std::vector<tokens::Token>&& tokens, Lox& lox) : tokens_(std::mov
 std::vector<statements::Stmt> Parser::Parse() {
     std::vector<statements::Stmt> statements;
     while (!IsAtEnd()) {
-        statements.push_back(Statement());
+        auto stmt = Declaration();
+        if (stmt.Is<std::monostate>()) {
+            continue;
+        }
+        statements.push_back(std::move(stmt));
     }
     return statements;
 }
@@ -26,9 +30,23 @@ ExprPtr Parser::Expression() {
 
 expressions::ExprPtr Parser::Comma() {
     auto matcher = [this]() -> expressions::ExprPtr {
-        return Conditional();
+        return Assignment();
     };
     return ParseExpr(std::move(matcher), Type::kComma);
+}
+
+expressions::ExprPtr Parser::Assignment() {
+    auto expr = Conditional();
+    if (Match(tokens::Type::kEqual)) {
+        auto equals = Previous();
+        auto value = Assignment();
+        if (expr->Is<expressions::Variable>()) {
+            auto name = expr->As<expressions::Variable>().name_;
+            return MakeExpr<expressions::Assign>(name, std::move(value));
+        }
+        lox_.Error(equals, "Invalid assignment target.");
+    }
+    return expr;
 }
 
 expressions::ExprPtr Parser::Conditional() {
@@ -93,6 +111,8 @@ ExprPtr Parser::Primary() {
         auto expr = Expression();
         Consume(Type::kRightParen, "Expected ')' after expression.");
         return MakeExpr<expressions::Grouping>(std::move(expr));
+    } else if (Match(Type::kIdentifier)) {
+        return MakeExpr<expressions::Variable>(Previous());
     }
 
     // Error productions
@@ -115,6 +135,29 @@ ExprPtr Parser::Primary() {
     }
 
     throw Error(Peek(), "Expected expression.");
+}
+
+statements::Stmt Parser::Declaration() {
+    try {
+        if (Match(tokens::Type::kVar)) {
+            return VarDeclaration();
+        } else {
+            return Statement();
+        }
+    } catch (const ParseError& error) {
+        Synchronize();
+        return {};
+    }
+}
+
+statements::Stmt Parser::VarDeclaration() {
+    auto name = Consume(tokens::Type::kIdentifier, "Expected variable name.");
+    ExprPtr initializer;
+    if (Match(tokens::Type::kEqual)) {
+        initializer = Expression();
+    }
+    Consume(tokens::Type::kSemicolon, "Expect ';' after variable declaration.");
+    return statements::MakeStmt<statements::Var>(std::move(name), std::move(initializer));
 }
 
 statements::Stmt Parser::Statement() {

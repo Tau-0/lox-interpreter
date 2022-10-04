@@ -9,20 +9,25 @@ namespace lox {
 AstInterpreter::AstInterpreter(lox::Lox& lox) : lox_(lox) {
 }
 
-Value AstInterpreter::Interpret(const expressions::Expr& expr) const {
+void AstInterpreter::Interpret(const std::vector<statements::Stmt>& statements) {
     try {
-        return Evaluate(expr);
+        for (const auto& statement : statements) {
+            Execute(statement);
+        }
     } catch (const RuntimeError& error) {
         lox_.RuntimeError(error);
     }
-    return {};
 }
 
-Value AstInterpreter::Evaluate(const expressions::Expr& expr) const {
+void AstInterpreter::Execute(const statements::Stmt& stmt) {
+    return stmt.Accept(*this);
+}
+
+Value AstInterpreter::Evaluate(const expressions::Expr& expr) {
     return expr.Accept(*this);
 }
 
-Value AstInterpreter::EvaluateUnary(const expressions::Unary& expr) const {
+Value AstInterpreter::EvaluateUnary(const expressions::Unary& expr) {
     Value rhs = Evaluate(*expr.expr_);
     if (expr.op_.GetType() == tokens::Type::kMinus) {
         CheckNumberOperand(expr.op_, rhs);
@@ -33,7 +38,7 @@ Value AstInterpreter::EvaluateUnary(const expressions::Unary& expr) const {
     return rhs;
 }
 
-Value AstInterpreter::EvaluateBinary(const expressions::Binary& expr) const {
+Value AstInterpreter::EvaluateBinary(const expressions::Binary& expr) {
     Value lhs = Evaluate(*expr.left_);
     Value rhs = Evaluate(*expr.right_);
     if (expr.op_.GetType() == tokens::Type::kPlus) {
@@ -52,7 +57,7 @@ Value AstInterpreter::EvaluateBinary(const expressions::Binary& expr) const {
     }
 }
 
-Value AstInterpreter::EvaluateConditional(const expressions::Conditional& expr) const {
+Value AstInterpreter::EvaluateConditional(const expressions::Conditional& expr) {
     auto condition = Evaluate(*expr.first_);
     if (IsTruthy(condition)) {
         return Evaluate(*expr.second_);

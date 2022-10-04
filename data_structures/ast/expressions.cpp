@@ -25,4 +25,10 @@ Conditional::Conditional(ExprPtr first, ExprPtr second, ExprPtr third)
 Grouping::Grouping(lox::expressions::ExprPtr expr) : expr_(std::move(expr)) {
 }
 
+Variable::Variable(const tokens::Token& name) : name_(name) {
+}
+
+Assign::Assign(const tokens::Token& name, lox::expressions::ExprPtr value) : name_(name), value_(std::move(value)) {
+}
+
 }  // namespace lox::expressions

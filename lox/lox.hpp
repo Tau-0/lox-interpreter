@@ -1,5 +1,6 @@
 #pragma once
 
+#include <data_structures/ast/ast_interpreter.hpp>
 #include <data_structures/tokens/tokens.hpp>
 #include <string>
 
@@ -16,7 +17,7 @@ class Lox {
     void RuntimeError(const RuntimeError& error);
 
  private:
-    void Run(std::string&& source);
+    void Run(std::string&& source, AstInterpreter& interpreter);
     void Report(int line, const std::string& where, const std::string& message);
 
  private:
