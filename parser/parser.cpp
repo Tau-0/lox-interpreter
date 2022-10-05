@@ -183,6 +183,8 @@ statements::Stmt Parser::Statement() {
         return IfStatement();
     } else if (Match(tokens::Type::kWhile)) {
         return WhileStatement();
+    } else if (Match(tokens::Type::kFor)) {
+        return ForStatement();
     } else {
         return ExpressionStatement();
     }
@@ -226,6 +228,51 @@ statements::Stmt Parser::WhileStatement() {
     Consume(tokens::Type::kRightParen, "Expected ')' after while condition.");
     auto statement = std::make_shared<statements::Stmt>(Statement());
     return statements::MakeStmt<statements::While>(std::move(condition), std::move(statement));
+}
+
+statements::Stmt Parser::ForStatement() {
+    Consume(tokens::Type::kLeftParen, "Expected '(' after 'for'.");
+
+    statements::Stmt initializer;
+    if (Match(tokens::Type::kVar)) {
+        initializer = VarDeclaration();
+    } else if (!Match(tokens::Type::kSemicolon)) {
+        initializer = ExpressionStatement();
+    }
+
+    ExprPtr condition;
+    if (!Check(tokens::Type::kSemicolon)) {
+        condition = Expression();
+    }
+    Consume(tokens::Type::kSemicolon, "Expected ';' after loop condition.");
+
+    ExprPtr increment;
+    if (!Check(tokens::Type::kRightParen)) {
+        increment = Expression();
+    }
+    Consume(tokens::Type::kRightParen, "Expected ')' after for clauses.");
+
+    auto body = Statement();
+
+    // Desugaring
+    if (increment != nullptr) {
+        std::vector<statements::Stmt> statements = {std::move(body),
+                                                    statements::MakeStmt<statements::Expression>(std::move(increment))};
+        body = statements::MakeStmt<statements::Block>(std::move(statements));
+    }
+
+    if (condition == nullptr) {
+        condition = MakeExpr<expressions::Boolean>(true);
+    }
+    body = statements::MakeStmt<statements::While>(std::move(condition),
+                                                   std::make_shared<statements::Stmt>(std::move(body)));
+
+    if (!initializer.Is<std::monostate>()) {
+        std::vector<statements::Stmt> statements = {std::move(initializer), std::move(body)};
+        body = statements::MakeStmt<statements::Block>(std::move(statements));
+    }
+
+    return body;
 }
 
 statements::Stmt Parser::ExpressionStatement() {

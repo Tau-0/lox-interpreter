@@ -11,12 +11,13 @@ namespace lox {
 // program          -> declaration* EOF ;
 // declaration      -> varDecl | statement ;
 // varDecl          -> "var" IDENTIFIER ( "=" expression )? ";" ;
-// statement        -> exprStmt | printStmt | block | ifStmt | whileStmt ;
+// statement        -> exprStmt | printStmt | block | ifStmt | whileStmt | forStmt ;
 // exprStmt         -> expression ";" ;
 // printStmt        -> "print" expression ";" ;
 // block            -> "{" declaration* "}" ;
 // ifStmt           -> "if" "(" expression ")" statement ( "else" statement )? ;
 // whileStmt        -> "while" "(" expression ")" statement ;
+// forStmt          -> "for" "(" (varDecl | exprStmt | ";" ) expression? ";" expression? ")" statement ;
 // expression       -> comma ;
 // comma            -> assignment ( "," assignment )* ;
 // assignment       -> IDENTIFIER "=" assignment | conditional ;
@@ -64,6 +65,7 @@ class Parser {
     statements::Stmt BlockStatement();
     statements::Stmt IfStatement();
     statements::Stmt WhileStatement();
+    statements::Stmt ForStatement();
     statements::Stmt ExpressionStatement();
 
     bool Check(tokens::Type type) const;
