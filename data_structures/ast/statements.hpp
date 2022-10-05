@@ -44,6 +44,13 @@ struct If {
     StmtPtr else_branch_;
 };
 
+struct While {
+    While(expressions::ExprPtr condition, StmtPtr statement);
+
+    expressions::ExprPtr condition_;
+    StmtPtr statement_;
+};
+
 template <typename T>
 concept IsStatement = IsTypeOf<T, std::monostate, Expression, Print, Var, Block, If>;
 

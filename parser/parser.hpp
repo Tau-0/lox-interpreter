@@ -11,11 +11,12 @@ namespace lox {
 // program          -> declaration* EOF ;
 // declaration      -> varDecl | statement ;
 // varDecl          -> "var" IDENTIFIER ( "=" expression )? ";" ;
-// statement        -> exprStmt | printStmt | block | ifStmt ;
+// statement        -> exprStmt | printStmt | block | ifStmt | whileStmt ;
 // exprStmt         -> expression ";" ;
 // printStmt        -> "print" expression ";" ;
 // block            -> "{" declaration* "}" ;
 // ifStmt           -> "if" "(" expression ")" statement ( "else" statement )? ;
+// whileStmt        -> "while" "(" expression ")" statement ;
 // expression       -> comma ;
 // comma            -> assignment ( "," assignment )* ;
 // assignment       -> IDENTIFIER "=" assignment | conditional ;
