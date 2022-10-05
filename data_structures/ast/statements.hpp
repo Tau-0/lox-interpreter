@@ -2,8 +2,11 @@
 
 #include <data_structures/ast/expressions.hpp>
 #include <variant>
+#include <vector>
 
 namespace lox::statements {
+
+class Stmt;
 
 struct Expression {
     explicit Expression(expressions::ExprPtr expr);
@@ -24,11 +27,20 @@ struct Var {
     expressions::ExprPtr initializer_;
 };
 
+struct Block {
+    explicit Block(std::vector<Stmt>&& statements);
+
+    std::vector<Stmt> statements_;
+};
+
+template <typename T>
+concept IsStatement = IsTypeOf<T, std::monostate, Expression, Print, Var, Block>;
+
 class Stmt {
  public:
     Stmt() = default;
 
-    template <typename T>
+    template <IsStatement T>
     explicit Stmt(T&& stmt) : stmt_(std::forward<T>(stmt)) {
     }
 
@@ -37,21 +49,18 @@ class Stmt {
         return std::visit(visitor, stmt_);
     }
 
-    template <typename T>
+    template <IsStatement T>
     bool Is() const {
         return std::holds_alternative<T>(stmt_);
     }
 
  private:
-    std::variant<std::monostate, Expression, Print, Var> stmt_;
+    std::variant<std::monostate, Expression, Print, Var, Block> stmt_;
 };
 
-template <typename T, typename... Args>
+template <IsStatement T, typename... Args>
 Stmt MakeStmt(Args&&... args) {
     return Stmt(T(std::forward<Args>(args)...));
 }
-
-template <typename T>
-concept IsStatement = IsTypeOf<T, std::monostate, Expression, Print, Var>;
 
 }  // namespace lox::statements

@@ -15,4 +15,4 @@ file(GLOB_RECURSE SOURCES_NESTED
 
 set(SOURCES main.cpp ${SOURCES_NESTED})
 
-add_executable(lox_interpreter ${SOURCES})
+add_executable(lox ${SOURCES})

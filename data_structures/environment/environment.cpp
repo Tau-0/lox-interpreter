@@ -31,4 +31,16 @@ void Environment::Assign(const tokens::Token& name, const lox::Value& value) {
     }
 }
 
+EnvironmentGuard::EnvironmentGuard(lox::Environment* to_restore)
+    : saved_(std::move(*to_restore)), to_restore_(to_restore) {
+}
+
+EnvironmentGuard::~EnvironmentGuard() {
+    *to_restore_ = std::move(saved_);
+}
+
+Environment* EnvironmentGuard::GetSaved() {
+    return &saved_;
+}
+
 }  // namespace lox

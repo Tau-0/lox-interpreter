@@ -163,6 +163,8 @@ statements::Stmt Parser::VarDeclaration() {
 statements::Stmt Parser::Statement() {
     if (Match(tokens::Type::kPrint)) {
         return PrintStatement();
+    } else if (Match(tokens::Type::kLeftBrace)) {
+        return BlockStatement();
     } else {
         return ExpressionStatement();
     }
@@ -172,6 +174,20 @@ statements::Stmt Parser::PrintStatement() {
     auto value = Expression();
     Consume(tokens::Type::kSemicolon, "Expected ';' after value.");
     return statements::MakeStmt<statements::Print>(std::move(value));
+}
+
+statements::Stmt Parser::BlockStatement() {
+    std::vector<statements::Stmt> statements;
+    while (!Check(tokens::Type::kRightBrace) && !IsAtEnd()) {
+        auto stmt = Declaration();
+        if (stmt.Is<std::monostate>()) {
+            continue;
+        }
+        statements.push_back(std::move(stmt));
+    }
+
+    Consume(tokens::Type::kRightBrace, "Expected '}' after block.");
+    return statements::MakeStmt<statements::Block>(std::move(statements));
 }
 
 statements::Stmt Parser::ExpressionStatement() {

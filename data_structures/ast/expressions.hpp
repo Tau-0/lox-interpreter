@@ -83,9 +83,15 @@ struct Assign {
     ExprPtr value_;
 };
 
+template <typename T>
+concept IsLiteral = IsTypeOf<T, String, Number, Boolean, Nil>;
+
+template <typename T>
+concept IsExpression = IsLiteral<T> || IsTypeOf<T, Unary, Binary, Conditional, Grouping, Variable, Assign>;
+
 class Expr {
  public:
-    template <typename T>
+    template <IsExpression T>
     explicit Expr(T&& expr) : expr_(std::forward<T>(expr)) {
     }
 
@@ -94,12 +100,12 @@ class Expr {
         return std::visit(visitor, expr_);
     }
 
-    template <typename T>
+    template <IsExpression T>
     const T& As() const {
         return std::get<T>(expr_);
     }
 
-    template <typename T>
+    template <IsExpression T>
     bool Is() const {
         return std::holds_alternative<T>(expr_);
     }
@@ -108,15 +114,9 @@ class Expr {
     std::variant<String, Number, Boolean, Nil, Unary, Binary, Conditional, Grouping, Variable, Assign> expr_;
 };
 
-template <typename T, typename... Args>
+template <IsExpression T, typename... Args>
 ExprPtr MakeExpr(Args&&... args) {
     return std::make_shared<Expr>(T(std::forward<Args>(args)...));
 }
-
-template <typename T>
-concept IsLiteral = IsTypeOf<T, String, Number, Boolean, Nil>;
-
-template <typename T>
-concept IsExpression = IsLiteral<T> || IsTypeOf<T, Unary, Binary, Conditional, Grouping, Variable, Assign>;
 
 }  // namespace lox::expressions

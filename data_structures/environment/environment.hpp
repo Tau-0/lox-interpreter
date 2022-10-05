@@ -20,4 +20,15 @@ class Environment {
     Environment* enclosing_ = nullptr;
 };
 
+class EnvironmentGuard {
+ public:
+    explicit EnvironmentGuard(Environment* to_restore);
+    ~EnvironmentGuard();
+    Environment* GetSaved();
+
+ private:
+    Environment saved_;
+    Environment* to_restore_ = nullptr;
+};
+
 }  // namespace lox

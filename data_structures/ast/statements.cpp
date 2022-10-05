@@ -12,4 +12,7 @@ Var::Var(tokens::Token&& name, expressions::ExprPtr initializer)
     : name_(std::move(name)), initializer_(std::move(initializer)) {
 }
 
+Block::Block(std::vector<Stmt>&& statements) : statements_(std::move(statements)) {
+}
+
 }  // namespace lox::statements

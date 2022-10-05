@@ -9,9 +9,10 @@
 namespace lox {
 
 // program          -> declaration* EOF ;
-// declaration      -> var_decl | statement ;
-// var_decl         -> "var" IDENTIFIER ( "=" expression )? ";" ;
-// statement        -> exprStmt | printStmt ;
+// declaration      -> varDecl | statement ;
+// varDecl          -> "var" IDENTIFIER ( "=" expression )? ";" ;
+// statement        -> exprStmt | printStmt | block ;
+// block            -> "{" declaration* "}" ;
 // exprStmt         -> expression ";" ;
 // printStmt        -> "print" expression ";" ;
 // expression       -> comma ;
@@ -54,6 +55,7 @@ class Parser {
     statements::Stmt VarDeclaration();
     statements::Stmt Statement();
     statements::Stmt PrintStatement();
+    statements::Stmt BlockStatement();
     statements::Stmt ExpressionStatement();
 
     bool Check(tokens::Type type) const;

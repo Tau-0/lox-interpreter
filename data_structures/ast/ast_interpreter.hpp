@@ -52,6 +52,8 @@ class AstInterpreter {
                 value = Evaluate(*arg.initializer_);
             }
             environment_.Define(arg.name_.GetLexeme(), value);
+        } else if constexpr (std::is_same_v<Arg, statements::Block>) {
+            ExecuteBlock(arg);
         } else {
             throw std::runtime_error("Unexpected statement type.");
         }
@@ -59,6 +61,7 @@ class AstInterpreter {
 
  private:
     void Execute(const statements::Stmt& stmt);
+    void ExecuteBlock(const statements::Block& block);
     Value Evaluate(const expressions::Expr& expr);
     Value EvaluateUnary(const expressions::Unary& expr);
     Value EvaluateBinary(const expressions::Binary& expr);

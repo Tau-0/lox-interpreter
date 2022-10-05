@@ -23,6 +23,14 @@ void AstInterpreter::Execute(const statements::Stmt& stmt) {
     return stmt.Accept(*this);
 }
 
+void AstInterpreter::ExecuteBlock(const statements::Block& block) {
+    EnvironmentGuard guard(&environment_);
+    environment_ = Environment(guard.GetSaved());
+    for (const auto& statement : block.statements_) {
+        Execute(statement);
+    }
+}
+
 Value AstInterpreter::Evaluate(const expressions::Expr& expr) {
     return expr.Accept(*this);
 }
