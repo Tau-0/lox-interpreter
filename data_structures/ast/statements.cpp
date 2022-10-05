@@ -15,4 +15,8 @@ Var::Var(tokens::Token&& name, expressions::ExprPtr initializer)
 Block::Block(std::vector<Stmt>&& statements) : statements_(std::move(statements)) {
 }
 
+If::If(expressions::ExprPtr condition, StmtPtr then_branch, StmtPtr else_branch)
+    : condition_(std::move(condition)), then_branch_(std::move(then_branch)), else_branch_(std::move(else_branch)) {
+}
+
 }  // namespace lox::statements

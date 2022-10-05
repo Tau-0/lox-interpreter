@@ -34,6 +34,16 @@ class AstInterpreter {
             auto value = Evaluate(*arg.value_);
             environment_.Assign(arg.name_, value);
             return value;
+        } else if constexpr (std::is_same_v<Arg, expressions::Logical>) {
+            Value lhs = Evaluate(*arg.left_);
+            if (arg.op_.GetType() == tokens::Type::kOr) {
+                if (IsTruthy(lhs)) {
+                    return lhs;
+                }
+            } else if (!IsTruthy(lhs)) {
+                return lhs;
+            }
+            return Evaluate(*arg.right_);
         } else {
             throw std::runtime_error("Unexpected expression type.");
         }
@@ -54,6 +64,12 @@ class AstInterpreter {
             environment_.Define(arg.name_.GetLexeme(), value);
         } else if constexpr (std::is_same_v<Arg, statements::Block>) {
             ExecuteBlock(arg);
+        } else if constexpr (std::is_same_v<Arg, statements::If>) {
+            if (IsTruthy(Evaluate(*arg.condition_))) {
+                Execute(*arg.then_branch_);
+            } else if (arg.else_branch_ != nullptr) {
+                Execute(*arg.else_branch_);
+            }
         } else {
             throw std::runtime_error("Unexpected statement type.");
         }

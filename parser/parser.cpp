@@ -50,7 +50,7 @@ expressions::ExprPtr Parser::Assignment() {
 }
 
 expressions::ExprPtr Parser::Conditional() {
-    auto expr = Equality();
+    auto expr = LogicOr();
     if (Match(Type::kQuestion)) {
         auto then_branch = Expression();
         Consume(Type::kColon, "Expected ':' after then-branch of ternary conditional expression.");
@@ -58,6 +58,20 @@ expressions::ExprPtr Parser::Conditional() {
         expr = MakeExpr<expressions::Conditional>(std::move(expr), std::move(then_branch), std::move(else_branch));
     }
     return expr;
+}
+
+expressions::ExprPtr Parser::LogicOr() {
+    auto matcher = [this]() -> expressions::ExprPtr {
+        return LogicAnd();
+    };
+    return ParseExpr<expressions::Logical>(std::move(matcher), Type::kOr);
+}
+
+expressions::ExprPtr Parser::LogicAnd() {
+    auto matcher = [this]() -> expressions::ExprPtr {
+        return Equality();
+    };
+    return ParseExpr<expressions::Logical>(std::move(matcher), Type::kAnd);
 }
 
 ExprPtr Parser::Equality() {
@@ -165,6 +179,8 @@ statements::Stmt Parser::Statement() {
         return PrintStatement();
     } else if (Match(tokens::Type::kLeftBrace)) {
         return BlockStatement();
+    } else if (Match(tokens::Type::kIf)) {
+        return IfStatement();
     } else {
         return ExpressionStatement();
     }
@@ -188,6 +204,18 @@ statements::Stmt Parser::BlockStatement() {
 
     Consume(tokens::Type::kRightBrace, "Expected '}' after block.");
     return statements::MakeStmt<statements::Block>(std::move(statements));
+}
+
+statements::Stmt Parser::IfStatement() {
+    Consume(tokens::Type::kLeftParen, "Expected '(' after 'if'.");
+    auto expr = Expression();
+    Consume(tokens::Type::kRightParen, "Expected ')' after if condition.");
+    auto then_branch = std::make_shared<statements::Stmt>(Statement());
+    if (Match(tokens::Type::kElse)) {
+        auto else_branch = std::make_shared<statements::Stmt>(Statement());
+        return statements::MakeStmt<statements::If>(std::move(expr), std::move(then_branch), std::move(else_branch));
+    }
+    return statements::MakeStmt<statements::If>(std::move(expr), std::move(then_branch), nullptr);
 }
 
 statements::Stmt Parser::ExpressionStatement() {

@@ -1,12 +1,15 @@
 #pragma once
 
 #include <data_structures/ast/expressions.hpp>
+#include <memory>
 #include <variant>
 #include <vector>
 
 namespace lox::statements {
 
 class Stmt;
+
+using StmtPtr = std::shared_ptr<Stmt>;
 
 struct Expression {
     explicit Expression(expressions::ExprPtr expr);
@@ -33,8 +36,16 @@ struct Block {
     std::vector<Stmt> statements_;
 };
 
+struct If {
+    If(expressions::ExprPtr condition, StmtPtr then_branch, StmtPtr else_branch);
+
+    expressions::ExprPtr condition_;
+    StmtPtr then_branch_;
+    StmtPtr else_branch_;
+};
+
 template <typename T>
-concept IsStatement = IsTypeOf<T, std::monostate, Expression, Print, Var, Block>;
+concept IsStatement = IsTypeOf<T, std::monostate, Expression, Print, Var, Block, If>;
 
 class Stmt {
  public:
@@ -55,7 +66,7 @@ class Stmt {
     }
 
  private:
-    std::variant<std::monostate, Expression, Print, Var, Block> stmt_;
+    std::variant<std::monostate, Expression, Print, Var, Block, If> stmt_;
 };
 
 template <IsStatement T, typename... Args>

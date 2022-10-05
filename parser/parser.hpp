@@ -11,14 +11,17 @@ namespace lox {
 // program          -> declaration* EOF ;
 // declaration      -> varDecl | statement ;
 // varDecl          -> "var" IDENTIFIER ( "=" expression )? ";" ;
-// statement        -> exprStmt | printStmt | block ;
-// block            -> "{" declaration* "}" ;
+// statement        -> exprStmt | printStmt | block | ifStmt ;
 // exprStmt         -> expression ";" ;
 // printStmt        -> "print" expression ";" ;
+// block            -> "{" declaration* "}" ;
+// ifStmt           -> "if" "(" expression ")" statement ( "else" statement )? ;
 // expression       -> comma ;
 // comma            -> assignment ( "," assignment )* ;
 // assignment       -> IDENTIFIER "=" assignment | conditional ;
-// conditional      -> equality ( "?" expression ":" expression )? ;
+// conditional      -> logic_or ( "?" expression ":" expression )? ;
+// logic_or         -> logic_and ( "or" logic_and )* ;
+// logic_and        -> equality ( "and" equality )* ;
 // equality         -> comparison ( ( "!=" | "==" ) comparison )* ;
 // comparison       -> term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
 // term             -> factor ( ( "-" | "+" ) factor )* ;
@@ -44,6 +47,8 @@ class Parser {
     expressions::ExprPtr Comma();
     expressions::ExprPtr Assignment();
     expressions::ExprPtr Conditional();
+    expressions::ExprPtr LogicOr();
+    expressions::ExprPtr LogicAnd();
     expressions::ExprPtr Equality();
     expressions::ExprPtr Comparison();
     expressions::ExprPtr Term();
@@ -56,6 +61,7 @@ class Parser {
     statements::Stmt Statement();
     statements::Stmt PrintStatement();
     statements::Stmt BlockStatement();
+    statements::Stmt IfStatement();
     statements::Stmt ExpressionStatement();
 
     bool Check(tokens::Type type) const;
@@ -74,13 +80,13 @@ class Parser {
         return Match(type) || Match(types...);
     }
 
-    template <typename Sub, tokens::IsTokenType... Args>
+    template <expressions::IsExpression As = expressions::Binary, typename Sub, tokens::IsTokenType... Args>
     expressions::ExprPtr ParseExpr(Sub&& sub_expr, Args&&... types) {
         auto expr = sub_expr();
         while (Match(std::forward<Args>(types)...)) {
             auto op = Previous();
             auto right = sub_expr();
-            expr = MakeExpr<expressions::Binary>(std::move(expr), std::move(right), std::move(op));
+            expr = MakeExpr<As>(std::move(expr), std::move(right), std::move(op));
         }
         return expr;
     }

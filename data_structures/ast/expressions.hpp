@@ -83,11 +83,19 @@ struct Assign {
     ExprPtr value_;
 };
 
+struct Logical {
+    Logical(ExprPtr left, ExprPtr right, tokens::Token&& op);
+
+    ExprPtr left_;
+    ExprPtr right_;
+    tokens::Token op_;
+};
+
 template <typename T>
 concept IsLiteral = IsTypeOf<T, String, Number, Boolean, Nil>;
 
 template <typename T>
-concept IsExpression = IsLiteral<T> || IsTypeOf<T, Unary, Binary, Conditional, Grouping, Variable, Assign>;
+concept IsExpression = IsLiteral<T> || IsTypeOf<T, Unary, Binary, Conditional, Grouping, Variable, Assign, Logical>;
 
 class Expr {
  public:
@@ -111,7 +119,7 @@ class Expr {
     }
 
  private:
-    std::variant<String, Number, Boolean, Nil, Unary, Binary, Conditional, Grouping, Variable, Assign> expr_;
+    std::variant<String, Number, Boolean, Nil, Unary, Binary, Conditional, Grouping, Variable, Assign, Logical> expr_;
 };
 
 template <IsExpression T, typename... Args>

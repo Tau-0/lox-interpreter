@@ -31,4 +31,8 @@ Variable::Variable(const tokens::Token& name) : name_(name) {
 Assign::Assign(const tokens::Token& name, lox::expressions::ExprPtr value) : name_(name), value_(std::move(value)) {
 }
 
+Logical::Logical(lox::expressions::ExprPtr left, lox::expressions::ExprPtr right, tokens::Token&& op)
+    : left_(std::move(left)), right_(std::move(right)), op_(std::move(op)) {
+}
+
 }  // namespace lox::expressions
