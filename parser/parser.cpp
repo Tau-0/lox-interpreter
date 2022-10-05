@@ -181,6 +181,8 @@ statements::Stmt Parser::Statement() {
         return BlockStatement();
     } else if (Match(tokens::Type::kIf)) {
         return IfStatement();
+    } else if (Match(tokens::Type::kWhile)) {
+        return WhileStatement();
     } else {
         return ExpressionStatement();
     }
@@ -216,6 +218,14 @@ statements::Stmt Parser::IfStatement() {
         return statements::MakeStmt<statements::If>(std::move(expr), std::move(then_branch), std::move(else_branch));
     }
     return statements::MakeStmt<statements::If>(std::move(expr), std::move(then_branch), nullptr);
+}
+
+statements::Stmt Parser::WhileStatement() {
+    Consume(tokens::Type::kLeftParen, "Expected '(' after 'while'.");
+    auto condition = Expression();
+    Consume(tokens::Type::kRightParen, "Expected ')' after while condition.");
+    auto statement = std::make_shared<statements::Stmt>(Statement());
+    return statements::MakeStmt<statements::While>(std::move(condition), std::move(statement));
 }
 
 statements::Stmt Parser::ExpressionStatement() {

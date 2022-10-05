@@ -70,6 +70,10 @@ class AstInterpreter {
             } else if (arg.else_branch_ != nullptr) {
                 Execute(*arg.else_branch_);
             }
+        } else if constexpr (std::is_same_v<Arg, statements::While>) {
+            while (IsTruthy(Evaluate(*arg.condition_))) {
+                Execute(*arg.statement_);
+            }
         } else {
             throw std::runtime_error("Unexpected statement type.");
         }

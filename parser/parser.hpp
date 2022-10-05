@@ -63,6 +63,7 @@ class Parser {
     statements::Stmt PrintStatement();
     statements::Stmt BlockStatement();
     statements::Stmt IfStatement();
+    statements::Stmt WhileStatement();
     statements::Stmt ExpressionStatement();
 
     bool Check(tokens::Type type) const;

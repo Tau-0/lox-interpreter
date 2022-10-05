@@ -52,7 +52,7 @@ struct While {
 };
 
 template <typename T>
-concept IsStatement = IsTypeOf<T, std::monostate, Expression, Print, Var, Block, If>;
+concept IsStatement = IsTypeOf<T, std::monostate, Expression, Print, Var, Block, If, While>;
 
 class Stmt {
  public:
@@ -73,7 +73,7 @@ class Stmt {
     }
 
  private:
-    std::variant<std::monostate, Expression, Print, Var, Block, If> stmt_;
+    std::variant<std::monostate, Expression, Print, Var, Block, If, While> stmt_;
 };
 
 template <IsStatement T, typename... Args>
