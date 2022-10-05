@@ -17,8 +17,11 @@ const Value& Environment::Get(const tokens::Token& name) const {
         return enclosing_->Get(name);
     } else if (it == values_.end()) {
         throw RuntimeError(name, "Undefined variable '" + name.GetLexeme() + "'.");
+    } else if (it->second.Is<Uninitialized>()) {
+        throw RuntimeError(name, "Access to uninitialized variable '" + name.GetLexeme() + "'.");
+    } else {
+        return it->second;
     }
-    return it->second;
 }
 
 void Environment::Assign(const tokens::Token& name, const lox::Value& value) {

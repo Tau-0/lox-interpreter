@@ -5,6 +5,16 @@
 
 namespace lox {
 
+struct Uninitialized {
+    inline bool operator==(Uninitialized) const {
+        return true;
+    }
+
+    inline bool operator!=(Uninitialized) const {
+        return false;
+    }
+};
+
 class Value {
  public:
     Value() = default;
@@ -36,7 +46,7 @@ class Value {
     static std::string StringifyDouble(double value);
 
  private:
-    std::variant<std::monostate, bool, double, std::string> value_;
+    std::variant<Uninitialized, std::monostate, bool, double, std::string> value_;
 };
 
 }  // namespace lox
