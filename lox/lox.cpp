@@ -11,11 +11,13 @@
 
 namespace lox {
 
+Lox::Lox() : interpreter_(*this) {
+}
+
 void Lox::RunFile(const std::string& filename) {
     std::ifstream file_stream(filename);
     std::string source{std::istreambuf_iterator<char>(file_stream), std::istreambuf_iterator<char>()};
-    AstInterpreter interpreter(*this);
-    Run(std::move(source), interpreter);
+    Run(std::move(source));
     if (had_error_) {
         std::exit(EX_DATAERR);
     } else if (had_runtime_error_) {
@@ -24,12 +26,11 @@ void Lox::RunFile(const std::string& filename) {
 }
 
 void Lox::RunPrompt() {
-    AstInterpreter interpreter(*this);
     while (!std::cin.eof()) {
         std::cout << "> ";
         std::string line;
         std::getline(std::cin, line);
-        Run(std::move(line), interpreter);
+        Run(std::move(line));
         had_error_ = false;
         had_runtime_error_ = false;
     }
@@ -52,14 +53,14 @@ void Lox::RuntimeError(const lox::RuntimeError& error) {
     had_runtime_error_ = true;
 }
 
-void Lox::Run(std::string&& source, AstInterpreter& interpreter) {
+void Lox::Run(std::string&& source) {
     Scanner scanner(std::move(source), *this);
     Parser parser(scanner.ScanTokens(), *this);
     auto statements = parser.Parse();
     if (statements.empty() || had_error_) {
         return;
     }
-    interpreter.Interpret(statements);
+    interpreter_.Interpret(statements);
 }
 
 void Lox::Report(int line, const std::string& where, const std::string& message) {
